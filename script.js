@@ -17,7 +17,7 @@ function checkAdmin() {
 // 3. ጥያቄዎችን በBulk (ከPDF/Text) ለማስገባት የሚያስችል የተሻሻለ ሲስተም
 function parseAndSaveBulk() {
     let rawText = document.getElementById('bulkInput').value;
-    let subject = document.getElementById('subjectSelect').value; // አሁን ከ Dropdown ይወስዳል
+    let subject = document.getElementById('subjectSelect').value;
     let lines = rawText.split('\n').filter(l => l.trim() !== "");
     let data = JSON.parse(localStorage.getItem(subject)) || [];
 
@@ -54,54 +54,73 @@ function selectStream(stream) {
     showPage('subject-list'); 
 }
 
-// 5. ፈተና መጀመሪያ እና ሰዓት ቆጣሪ
+// 5. አዲሱ የፈተና መጀመሪያ እና ሰዓት ቆጣሪ ሲስተም
 let currentQIndex = 0;
 let score = 0;
 let timerInterval;
+let timeLeft = 60;
+let currentSubject = "";
+let selectedAnswer = null;
 
 function startExam(subject) {
+    currentSubject = subject;
     currentQIndex = 0;
     score = 0;
     let questions = JSON.parse(localStorage.getItem(subject)) || [];
     if(questions.length === 0) { alert("ጥያቄዎች አልተዘጋጁም!"); return; }
     
     showPage('quiz-page');
-    startTimer();
     showQuestion(subject, questions);
 }
 
 function startTimer() {
-    let timeLeft = 60;
+    timeLeft = 60;
     document.getElementById('timer').innerText = "የቀረዎት ሰዓት: " + timeLeft;
+    clearInterval(timerInterval);
     timerInterval = setInterval(() => {
         timeLeft--;
         document.getElementById('timer').innerText = "የቀረዎት ሰዓት: " + timeLeft;
-        if(timeLeft <= 0) { finishExam(0); }
+        if(timeLeft <= 0) {
+            clearInterval(timerInterval);
+            nextQuestion();
+        }
     }, 1000);
 }
 
-// 6. ጥያቄዎችን ማሳየት እና ውጤት ማሳያ
+// 6. ጥያቄዎችን ማሳየት እና Next ሲስተም
 function showQuestion(subject, questions) {
     let qData = questions[currentQIndex];
     document.getElementById('q-text').innerText = (currentQIndex + 1) + ". " + qData.q;
     const container = document.getElementById('options-container');
     container.innerHTML = '';
     
+    document.getElementById('next-button').disabled = true;
+    selectedAnswer = null;
+    
     let labels = ['A', 'B', 'C', 'D'];
     qData.options.forEach((opt, index) => {
         let btn = document.createElement('button');
         btn.innerText = labels[index] + ") " + opt;
         btn.onclick = () => {
-            if(opt === qData.answer) score++;
-            currentQIndex++;
-            if (currentQIndex < questions.length) {
-                showQuestion(subject, questions);
-            } else {
-                finishExam(questions.length);
-            }
+            selectedAnswer = opt;
+            document.getElementById('next-button').disabled = false;
         };
         container.appendChild(btn);
     });
+    startTimer();
+}
+
+function nextQuestion() {
+    clearInterval(timerInterval);
+    let questions = JSON.parse(localStorage.getItem(currentSubject));
+    if (selectedAnswer === questions[currentQIndex].answer) score++;
+    
+    currentQIndex++;
+    if (currentQIndex < questions.length) {
+        showQuestion(currentSubject, questions);
+    } else {
+        finishExam(questions.length);
+    }
 }
 
 // 7. ፈተናን ማጠናቀቂያ ተግባር
