@@ -38,13 +38,24 @@
 
     <div id="admin-panel" class="page hidden">
         <h2>የአስተዳደር ፓናል</h2>
-        <input type="text" id="questionInput" placeholder="ጥያቄውን እዚህ ይጻፉ">
+        <select id="streamSelect">
+            <option value="Natural">ናቹራል ሳይንስ</option>
+            <option value="Social">ሶሻል ሳይንስ</option>
+        </select>
+        <input type="text" id="subjectInput" placeholder="የሳብጀክት ስም">
+        <textarea id="questionInput" placeholder="ጥያቄውን እዚህ ይጻፉ"></textarea>
+        <input type="text" id="optA" placeholder="አማራጭ ሀ">
+        <input type="text" id="optB" placeholder="አማራጭ ለ">
+        <input type="text" id="optC" placeholder="አማራጭ ሐ">
+        <input type="text" id="optD" placeholder="አማራጭ መ">
+        <input type="text" id="ansInput" placeholder="ትክክለኛ መልስ (ለምሳሌ: ሀ)">
         <button onclick="saveQuestion()">ጥያቄውን ይጫኑ</button>
         <br><br>
         <button onclick="showPage('selection')">ውጣ</button>
     </div>
 
     <div id="quiz-page" class="page hidden">
+        <div id="timer">የቀረዎት ሰዓት: 60</div>
         <h2 id="q-title">ፈተና</h2>
         <p id="q-text">ጥያቄው እዚህ ይታያል...</p>
         <div id="options-container"></div>
