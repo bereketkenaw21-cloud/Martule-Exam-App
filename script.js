@@ -14,22 +14,26 @@ function checkAdmin() {
     }
 }
 
-// 3. የትምህርት አይነቶች ዝርዝር
+// 3. ጥያቄዎችን ለማስቀመጥ (LocalStorage)
+function saveQuestion() {
+    let subject = document.getElementById('subjectInput').value;
+    let q = document.getElementById('questionInput').value;
+    let options = [document.getElementById('optA').value, document.getElementById('optB').value, document.getElementById('optC').value, document.getElementById('optD').value];
+    let answer = document.getElementById('ansInput').value;
+
+    let newQuestion = { q, options, answer };
+    let data = JSON.parse(localStorage.getItem(subject)) || [];
+    data.push(newQuestion);
+    localStorage.setItem(subject, JSON.stringify(data));
+    alert("ጥያቄው ተመዝግቧል!");
+}
+
+// 4. የትምህርት ዘርፍ እና አይነት ምርጫ
 const subjects = {
     Natural: ["ሒሳብ", "ፊዚክስ", "ኬሚስትሪ", "ባዮሎጂ", "አይሲቲ"],
     Social: ["እንግሊዝኛ", "ታሪክ", "ጂኦግራፊ", "ኢኮኖሚክስ", "ሲቪክስ"]
 };
 
-// 4. የጥያቄዎች ማከማቻ (እዚህ ጋር ነው ጥያቄዎቹን የምታስገባው)
-const questionBank = {
-    "ሒሳብ": [
-        { id: 1, q: "የ 5 + 5 ድምር ስንት ነው?", options: ["8", "10", "12", "9"], answer: "10" },
-        { id: 2, q: "የ 2 * 3 ስንት ነው?", options: ["5", "6", "7", "8"], answer: "6" }
-        // እዚህ ላይ እንደዚህ እያልክ እስከ 100 ጥያቄ ትቀጥላለህ
-    ]
-};
-
-// 5. የተማሪ የትምህርት ዘርፍ ምርጫ
 function selectStream(stream) {
     const container = document.getElementById('subjects-container');
     container.innerHTML = '';
@@ -37,52 +41,58 @@ function selectStream(stream) {
     subjects[stream].forEach(subject => {
         let btn = document.createElement('button');
         btn.innerText = subject;
-        btn.onclick = function() { startExam(subject); };
+        btn.onclick = () => startExam(subject);
         container.appendChild(btn);
     });
     showPage('subject-list'); 
 }
 
-// 6. ፈተና መጀመሪያ እና ጥያቄ ማሳያ
+// 5. ፈተና መጀመሪያ እና ሰዓት ቆጣሪ
 let currentQIndex = 0;
+let score = 0;
+let timerInterval;
+
 function startExam(subject) {
     currentQIndex = 0;
-    showQuestion(subject);
+    score = 0;
+    let questions = JSON.parse(localStorage.getItem(subject)) || [];
+    if(questions.length === 0) { alert("ጥያቄዎች አልተዘጋጁም!"); return; }
+    
+    showPage('quiz-page');
+    startTimer();
+    showQuestion(subject, questions);
 }
 
-function showQuestion(subject) {
-    if(!questionBank[subject] || currentQIndex >= questionBank[subject].length) {
-        alert("በዚህ ትምህርት ውስጥ ጥያቄዎች ገና አልተዘጋጁም!");
-        return;
-    }
-    showPage('quiz-page');
-    let qData = questionBank[subject][currentQIndex];
-    document.getElementById('q-text').innerText = qData.id + ". " + qData.q;
-    const optContainer = document.getElementById('options-container');
-    optContainer.innerHTML = '';
+function startTimer() {
+    let timeLeft = 60;
+    document.getElementById('timer').innerText = "የቀረዎት ሰዓት: " + timeLeft;
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = "የቀረዎት ሰዓት: " + timeLeft;
+        if(timeLeft <= 0) { clearInterval(timerInterval); alert("ጊዜ አልቋል!"); showPage('selection'); }
+    }, 1000);
+}
+
+// 6. ጥያቄዎችን ማሳየት እና መልስ መፈተሽ
+function showQuestion(subject, questions) {
+    let qData = questions[currentQIndex];
+    document.getElementById('q-text').innerText = (currentQIndex + 1) + ". " + qData.q;
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
     qData.options.forEach(opt => {
         let btn = document.createElement('button');
         btn.innerText = opt;
         btn.onclick = () => {
+            if(opt === qData.answer) score++;
             currentQIndex++;
-            if (currentQIndex < questionBank[subject].length) {
-                showQuestion(subject);
+            if (currentQIndex < questions.length) {
+                showQuestion(subject, questions);
             } else {
-                alert("ፈተና ተጠናቀቀ!");
+                clearInterval(timerInterval);
+                alert("ፈተና ተጠናቀቀ! ውጤትዎ: " + score + "/" + questions.length);
                 showPage('selection');
             }
         };
-        optContainer.appendChild(btn);
+        container.appendChild(btn);
     });
-}
-
-// 7. የአስተዳደር ጥያቄ ማስገቢያ
-function saveQuestion() {
-    let q = document.getElementById('questionInput').value;
-    if(q) {
-        alert("ጥያቄው ተቀምጧል");
-        document.getElementById('questionInput').value = '';
-    } else {
-        alert("እባክዎ ጥያቄ ይጻፉ!");
-    }
 }
