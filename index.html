@@ -1,84 +1,84 @@
 <!DOCTYPE html>
-<html lang="am">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>የፈተና መለማመጃ</title>
+    <title>Exam Practice</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
     <div id="splash" class="page">
-        <h1>እንኳን ወደ መርጡለ ማሪያም የፈተና መለማመጃ በደህና መጡ!</h1>
-        <div class="author">አዘጋጅ፦ በረከት</div>
-        <button onclick="showPage('selection')">ፈተናውን ይጀምሩ</button>
+        <h1>Welcome to Martule Mariam Exam Practice!</h1>
+        <div class="author">Developed by: Berket</div>
+        <button onclick="showPage('selection')">Start Exam</button>
     </div>
 
     <div id="selection" class="page hidden">
-        <h2>እባክዎ ይምረጡ</h2>
-        <button onclick="showPage('student-stream')">ተማሪ</button>
-        <button onclick="checkAdmin()">አስተዳደር</button>
+        <h2>Please Select</h2>
+        <button onclick="showPage('student-stream')">Student</button>
+        <button onclick="checkAdmin()">Admin</button>
     </div>
 
     <div id="student-stream" class="page hidden">
-        <h2>የትምህርት ዘርፍዎን ይምረጡ</h2>
-        <button onclick="selectStream('Natural')">ናቹራል ሳይንስ</button>
-        <button onclick="selectStream('Social')">ሶሻል ሳይንስ</button>
+        <h2>Select Your Stream</h2>
+        <button onclick="selectStream('Natural')">Natural Science</button>
+        <button onclick="selectStream('Social')">Social Science</button>
         <br><br>
-        <button onclick="showPage('selection')">ወደ ኋላ</button>
+        <button onclick="showPage('selection')">Back</button>
     </div>
 
     <div id="subject-list" class="page hidden">
-        <h2 id="stream-title">የትምህርት አይነቶች</h2>
+        <h2 id="stream-title">Subjects</h2>
         <div id="subjects-container"></div>
         <br><br>
-        <button onclick="showPage('student-stream')">ወደ ኋላ</button>
+        <button onclick="showPage('student-stream')">Back</button>
     </div>
 
     <div id="admin-panel" class="page hidden">
-        <h2>የአስተዳደር ፓናል</h2>
-        <label>የትምህርት አይነት ይምረጡ:</label>
+        <h2>Admin Panel</h2>
+        <label>Select Subject:</label>
         <select id="subjectSelect">
-            <option value="ሒሳብ">ሒሳብ</option>
-            <option value="ፊዚክስ">ፊዚክስ</option>
-            <option value="ኬሚስትሪ">ኬሚስትሪ</option>
-            <option value="ባዮሎጂ">ባዮሎጂ</option>
-            <option value="አይሲቲ">አይሲቲ</option>
-            <option value="እንግሊዝኛ">እንግሊዝኛ</option>
-            <option value="ታሪክ">ታሪክ</option>
-            <option value="ጂኦግራፊ">ጂኦግራፊ</option>
-            <option value="ኢኮኖሚክስ">ኢኮኖሚክስ</option>
-            <option value="ሲቪክስ">ሲቪክስ</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="History">History</option>
+            <option value="Geography">Geography</option>
+            <option value="Economics">Economics</option>
+            <option value="Civics">Civics</option>
+            <option value="English">English</option>
+            <option value="ICT">ICT</option>
         </select>
         
-        <p>ጥያቄዎችን ከ PDF ኮፒ አድርገው እዚህ ይለጥፉ:</p>
-        <textarea id="bulkInput" rows="10" cols="30" placeholder="ጥያቄ
-አማራጭ A
-አማራጭ B
-አማራጭ C
-አማራጭ D"></textarea>
+        <p>Paste questions from PDF here:</p>
+        <textarea id="bulkInput" rows="10" cols="30" placeholder="Question
+Option A
+Option B
+Option C
+Option D"></textarea>
         <br>
-        <button onclick="parseAndSaveBulk()">ጥያቄዎችን በሙሉ ይጫኑ</button>
+        <button onclick="parseAndSaveBulk()">Upload All Questions</button>
         <br><br>
-        <button onclick="showPage('selection')">ውጣ</button>
+        <button onclick="showPage('selection')">Exit</button>
     </div>
 
     <div id="quiz-page" class="page hidden">
-        <div id="timer" style="color: red; font-weight: bold; font-size: 20px;">የቀረዎት ሰዓት: 60</div>
-        <h2 id="q-title">ፈተና</h2>
-        <p id="q-text">ጥያቄው እዚህ ይታያል...</p>
+        <div id="timer" style="color: red; font-weight: bold; font-size: 20px;">Time left: 60</div>
+        <h2 id="q-title">Exam</h2>
+        <p id="q-text">Question appears here...</p>
         <div id="options-container"></div>
         <br><br>
-        <button id="next-button" onclick="nextQuestion()" disabled>ቀጣይ</button>
+        <button id="next-button" onclick="nextQuestion()" disabled>Next</button>
         <br><br>
-        <button onclick="showPage('subject-list')">ከፈተና ውጣ</button>
+        <button onclick="showPage('subject-list')">Exit Exam</button>
     </div>
 
     <div id="result-page" class="page hidden">
-        <h2>የፈተና ውጤትዎ</h2>
+        <h2>Your Score</h2>
         <p id="final-score" style="font-size: 24px; font-weight: bold;"></p>
-        <button onclick="showPage('selection')">ወደ መጀመሪያው ገጽ ይመለሱ</button>
+        <button onclick="showPage('selection')">Back to Home</button>
     </div>
 
     <script src="script.js"></script>
