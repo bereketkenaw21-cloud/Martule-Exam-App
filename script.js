@@ -14,18 +14,25 @@ function checkAdmin() {
     }
 }
 
-// 3. ጥያቄዎችን ለማስቀመጥ (LocalStorage)
-function saveQuestion() {
+// 3. ጥያቄዎችን በBulk (ከPDF/Text) ለማስገባት የሚያስችል አዲስ ሲስተም
+function parseAndSaveBulk() {
+    let rawText = document.getElementById('bulkInput').value; // በ HTML ላይ ይህን Input ጨምር
     let subject = document.getElementById('subjectInput').value;
-    let q = document.getElementById('questionInput').value;
-    let options = [document.getElementById('optA').value, document.getElementById('optB').value, document.getElementById('optC').value, document.getElementById('optD').value];
-    let answer = document.getElementById('ansInput').value;
-
-    let newQuestion = { q, options, answer };
+    let lines = rawText.split('\n');
     let data = JSON.parse(localStorage.getItem(subject)) || [];
-    data.push(newQuestion);
+
+    // እያንዳንዱ 5 መስመር እንደ አንድ ጥያቄ ይቆጠራል (ጥያቄ + 4 አማራጮች)
+    for(let i=0; i < lines.length; i += 5) {
+        if(lines[i]) {
+            data.push({
+                q: lines[i],
+                options: [lines[i+1], lines[i+2], lines[i+3], lines[i+4]],
+                answer: lines[i+1] // መጀመሪያው አማራጭ ትክክለኛ መልስ ተደርጎ ይወሰዳል
+            });
+        }
+    }
     localStorage.setItem(subject, JSON.stringify(data));
-    alert("ጥያቄው ተመዝግቧል!");
+    alert("ጥያቄዎች በስኬት ተመዝግበዋል!");
 }
 
 // 4. የትምህርት ዘርፍ እና አይነት ምርጫ
@@ -73,15 +80,17 @@ function startTimer() {
     }, 1000);
 }
 
-// 6. ጥያቄዎችን ማሳየት እና መልስ መፈተሽ
+// 6. ጥያቄዎችን ማሳየት እና A, B, C, D አማራጮችን መፈተሽ
 function showQuestion(subject, questions) {
     let qData = questions[currentQIndex];
     document.getElementById('q-text').innerText = (currentQIndex + 1) + ". " + qData.q;
     const container = document.getElementById('options-container');
     container.innerHTML = '';
-    qData.options.forEach(opt => {
+    
+    let labels = ['A', 'B', 'C', 'D'];
+    qData.options.forEach((opt, index) => {
         let btn = document.createElement('button');
-        btn.innerText = opt;
+        btn.innerText = labels[index] + ") " + opt; // እዚህ ጋር A, B, C, D ታክሏል
         btn.onclick = () => {
             if(opt === qData.answer) score++;
             currentQIndex++;
