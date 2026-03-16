@@ -65,10 +65,12 @@
     </div>
 
     <div id="quiz-page" class="page hidden">
-        <div id="timer">የቀረዎት ሰዓት: 60</div>
+        <div id="timer" style="color: red; font-weight: bold; font-size: 20px;">የቀረዎት ሰዓት: 60</div>
         <h2 id="q-title">ፈተና</h2>
         <p id="q-text">ጥያቄው እዚህ ይታያል...</p>
         <div id="options-container"></div>
+        <br><br>
+        <button id="next-button" onclick="nextQuestion()" disabled>ቀጣይ</button>
         <br><br>
         <button onclick="showPage('subject-list')">ከፈተና ውጣ</button>
     </div>
