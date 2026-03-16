@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>መርጡለ ማሪያም ፈተና</title>
+    <title>የፈተና መለማመጃ</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
     <div id="splash" class="page">
-        <h1>እንኳን ወደ መርጡለ ማሪያም 2ኛ ደረጃ ትምህርት ቤት የፈተና መለማመጃ በደህና መጡ!</h1>
+        <h1>እንኳን ወደ መርጡለ ማሪያም የፈተና መለማመጃ በደህና መጡ!</h1>
         <div class="author">አዘጋጅ፦ በረከት</div>
         <button onclick="showPage('selection')">ፈተናውን ይጀምሩ</button>
     </div>
@@ -38,9 +38,13 @@
 
     <div id="admin-panel" class="page hidden">
         <h2>የአስተዳደር ፓናል</h2>
-        <input type="text" id="subjectInput" placeholder="የሳብጀክት ስም (ለምሳሌ: ሒሳብ)">
-        <p>ጥያቄዎችን ከ PDF ኮፒ አድርገው እዚህ ይለጥፉ (ጥያቄ - አማራጭ1 - አማራጭ2 - አማራጭ3 - አማራጭ4 በአዲስ መስመር):</p>
-        <textarea id="bulkInput" rows="10" cols="30" placeholder="ጥያቄ እዚህ ይለጥፉ..."></textarea>
+        <input type="text" id="subjectInput" placeholder="የትምህርት አይነት (ለምሳሌ: ሒሳብ)">
+        <p>ጥያቄዎችን ከ PDF ኮፒ አድርገው እዚህ ይለጥፉ:</p>
+        <textarea id="bulkInput" rows="10" cols="30" placeholder="ጥያቄ (መስመር 1)
+አማራጭ A (መስመር 2)
+አማራጭ B (መስመር 3)
+አማራጭ C (መስመር 4)
+አማራጭ D (መስመር 5)"></textarea>
         <br>
         <button onclick="parseAndSaveBulk()">ጥያቄዎችን በሙሉ ይጫኑ</button>
         <br><br>
@@ -54,6 +58,12 @@
         <div id="options-container"></div>
         <br><br>
         <button onclick="showPage('subject-list')">ከፈተና ውጣ</button>
+    </div>
+
+    <div id="result-page" class="page hidden">
+        <h2>የፈተና ውጤትዎ</h2>
+        <p id="final-score" style="font-size: 24px; font-weight: bold;"></p>
+        <button onclick="showPage('selection')">ወደ መጀመሪያው ገጽ ይመለሱ</button>
     </div>
 
     <script src="script.js"></script>
