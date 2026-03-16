@@ -2,6 +2,7 @@
 <html lang="am">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>መርጡለ ማሪያም ፈተና</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -15,8 +16,16 @@
 
     <div id="selection" class="page hidden">
         <h2>እባክዎ ይምረጡ</h2>
-        <button onclick="showPage('student-subject')">ተማሪ</button>
+        <button onclick="showPage('student-stream')">ተማሪ</button>
         <button onclick="checkAdmin()">አስተዳደር</button>
+    </div>
+
+    <div id="student-stream" class="page hidden">
+        <h2>የትምህርት ዘርፍዎን ይምረጡ</h2>
+        <button onclick="alert('ናቹራል ሳይንስ መረጡ')">ናቹራል ሳይንስ</button>
+        <button onclick="alert('ሶሻል ሳይንስ መረጡ')">ሶሻል ሳይንስ</button>
+        <br><br>
+        <button onclick="showPage('selection')">ወደ ኋላ</button>
     </div>
 
     <script src="script.js"></script>
