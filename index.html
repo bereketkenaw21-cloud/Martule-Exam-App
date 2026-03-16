@@ -22,10 +22,25 @@
 
     <div id="student-stream" class="page hidden">
         <h2>የትምህርት ዘርፍዎን ይምረጡ</h2>
-        <button onclick="alert('ናቹራል ሳይንስ መረጡ')">ናቹራል ሳይንስ</button>
-        <button onclick="alert('ሶሻል ሳይንስ መረጡ')">ሶሻል ሳይንስ</button>
+        <button onclick="selectStream('Natural')">ናቹራል ሳይንስ</button>
+        <button onclick="selectStream('Social')">ሶሻል ሳይንስ</button>
         <br><br>
         <button onclick="showPage('selection')">ወደ ኋላ</button>
+    </div>
+
+    <div id="subject-list" class="page hidden">
+        <h2 id="stream-title">የትምህርት አይነቶች</h2>
+        <div id="subjects-container"></div>
+        <br><br>
+        <button onclick="showPage('student-stream')">ወደ ኋላ</button>
+    </div>
+
+    <div id="admin-panel" class="page hidden">
+        <h2>የአስተዳደር ፓናል</h2>
+        <input type="text" id="questionInput" placeholder="ጥያቄውን እዚህ ይጻፉ">
+        <button onclick="saveQuestion()">ጥያቄውን ይጫኑ</button>
+        <br><br>
+        <button onclick="showPage('selection')">ውጣ</button>
     </div>
 
     <script src="script.js"></script>
