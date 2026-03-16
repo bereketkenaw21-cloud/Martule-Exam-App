@@ -14,25 +14,25 @@ function checkAdmin() {
     }
 }
 
-// 3. ጥያቄዎችን በBulk (ከPDF/Text) ለማስገባት የሚያስችል አዲስ ሲስተም
+// 3. ጥያቄዎችን በBulk (ከPDF/Text) ለማስገባት የሚያስችል የተሻሻለ ሲስተም
 function parseAndSaveBulk() {
-    let rawText = document.getElementById('bulkInput').value; // በ HTML ላይ ይህን Input ጨምር
-    let subject = document.getElementById('subjectInput').value;
-    let lines = rawText.split('\n');
+    let rawText = document.getElementById('bulkInput').value;
+    let subject = document.getElementById('subjectSelect').value; // አሁን ከ Dropdown ይወስዳል
+    let lines = rawText.split('\n').filter(l => l.trim() !== "");
     let data = JSON.parse(localStorage.getItem(subject)) || [];
 
-    // እያንዳንዱ 5 መስመር እንደ አንድ ጥያቄ ይቆጠራል (ጥያቄ + 4 አማራጮች)
     for(let i=0; i < lines.length; i += 5) {
         if(lines[i]) {
             data.push({
                 q: lines[i],
                 options: [lines[i+1], lines[i+2], lines[i+3], lines[i+4]],
-                answer: lines[i+1] // መጀመሪያው አማራጭ ትክክለኛ መልስ ተደርጎ ይወሰዳል
+                answer: lines[i+1]
             });
         }
     }
     localStorage.setItem(subject, JSON.stringify(data));
-    alert("ጥያቄዎች በስኬት ተመዝግበዋል!");
+    alert("ጥያቄዎች ለ" + subject + " በስኬት ተመዝግበዋል!");
+    document.getElementById('bulkInput').value = '';
 }
 
 // 4. የትምህርት ዘርፍ እና አይነት ምርጫ
@@ -76,11 +76,11 @@ function startTimer() {
     timerInterval = setInterval(() => {
         timeLeft--;
         document.getElementById('timer').innerText = "የቀረዎት ሰዓት: " + timeLeft;
-        if(timeLeft <= 0) { clearInterval(timerInterval); alert("ጊዜ አልቋል!"); showPage('selection'); }
+        if(timeLeft <= 0) { finishExam(0); }
     }, 1000);
 }
 
-// 6. ጥያቄዎችን ማሳየት እና A, B, C, D አማራጮችን መፈተሽ
+// 6. ጥያቄዎችን ማሳየት እና ውጤት ማሳያ
 function showQuestion(subject, questions) {
     let qData = questions[currentQIndex];
     document.getElementById('q-text').innerText = (currentQIndex + 1) + ". " + qData.q;
@@ -90,18 +90,23 @@ function showQuestion(subject, questions) {
     let labels = ['A', 'B', 'C', 'D'];
     qData.options.forEach((opt, index) => {
         let btn = document.createElement('button');
-        btn.innerText = labels[index] + ") " + opt; // እዚህ ጋር A, B, C, D ታክሏል
+        btn.innerText = labels[index] + ") " + opt;
         btn.onclick = () => {
             if(opt === qData.answer) score++;
             currentQIndex++;
             if (currentQIndex < questions.length) {
                 showQuestion(subject, questions);
             } else {
-                clearInterval(timerInterval);
-                alert("ፈተና ተጠናቀቀ! ውጤትዎ: " + score + "/" + questions.length);
-                showPage('selection');
+                finishExam(questions.length);
             }
         };
         container.appendChild(btn);
     });
+}
+
+// 7. ፈተናን ማጠናቀቂያ ተግባር
+function finishExam(total) {
+    clearInterval(timerInterval);
+    document.getElementById('final-score').innerText = "ውጤትዎ: " + score + " ከ " + total;
+    showPage('result-page');
 }
