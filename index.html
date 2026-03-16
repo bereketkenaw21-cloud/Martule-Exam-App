@@ -1,4 +1,4 @@
-ጅ<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="am">
 <head>
     <meta charset="UTF-8">
@@ -44,7 +44,7 @@
         <br>
         <button onclick="parseAndSaveBulk()">ጥያቄዎችን በሙሉ ይጫኑ</button>
         <br><br>
-        <button onclick="showPage('selection')">ወደ ዋናው ገጽ</button>
+        <button onclick="showPage('selection')">ውጣ</button>
     </div>
 
     <div id="quiz-page" class="page hidden">
@@ -60,7 +60,11 @@
 
     <script>
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js');
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/Martule-Exam-App/sw.js')
+            .then(reg => console.log('Service Worker Registered!'))
+            .catch(err => console.log('Registration Failed', err));
+        });
       }
     </script>
 </body>
