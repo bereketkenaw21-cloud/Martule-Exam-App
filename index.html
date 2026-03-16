@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ጅ<!DOCTYPE html>
 <html lang="am">
 <head>
     <meta charset="UTF-8">
@@ -38,20 +38,13 @@
 
     <div id="admin-panel" class="page hidden">
         <h2>የአስተዳደር ፓናል</h2>
-        <select id="streamSelect">
-            <option value="Natural">ናቹራል ሳይንስ</option>
-            <option value="Social">ሶሻል ሳይንስ</option>
-        </select>
-        <input type="text" id="subjectInput" placeholder="የሳብጀክት ስም">
-        <textarea id="questionInput" placeholder="ጥያቄውን እዚህ ይጻፉ"></textarea>
-        <input type="text" id="optA" placeholder="አማራጭ ሀ">
-        <input type="text" id="optB" placeholder="አማራጭ ለ">
-        <input type="text" id="optC" placeholder="አማራጭ ሐ">
-        <input type="text" id="optD" placeholder="አማራጭ መ">
-        <input type="text" id="ansInput" placeholder="ትክክለኛ መልስ (ለምሳሌ: ሀ)">
-        <button onclick="saveQuestion()">ጥያቄውን ይጫኑ</button>
+        <input type="text" id="subjectInput" placeholder="የሳብጀክት ስም (ለምሳሌ: ሒሳብ)">
+        <p>ጥያቄዎችን ከ PDF ኮፒ አድርገው እዚህ ይለጥፉ (ጥያቄ - አማራጭ1 - አማራጭ2 - አማራጭ3 - አማራጭ4 በአዲስ መስመር):</p>
+        <textarea id="bulkInput" rows="10" cols="30" placeholder="ጥያቄ እዚህ ይለጥፉ..."></textarea>
+        <br>
+        <button onclick="parseAndSaveBulk()">ጥያቄዎችን በሙሉ ይጫኑ</button>
         <br><br>
-        <button onclick="showPage('selection')">ውጣ</button>
+        <button onclick="showPage('selection')">ወደ ዋናው ገጽ</button>
     </div>
 
     <div id="quiz-page" class="page hidden">
