@@ -31,20 +31,21 @@ function parseAndSaveBulk() {
         }
     }
     localStorage.setItem(subject, JSON.stringify(data));
-    alert("ጥያቄዎች ለ" + subject + " በስኬት ተመዝግበዋል!");
+    alert("Questions for " + subject + " saved successfully!");
     document.getElementById('bulkInput').value = '';
 }
 
 // 4. የትምህርት ዘርፍ እና አይነት ምርጫ
+const commonSubjects = ["Mathematics", "English", "ICT"];
 const subjects = {
-    Natural: ["ሒሳብ", "ፊዚክስ", "ኬሚስትሪ", "ባዮሎጂ", "አይሲቲ"],
-    Social: ["እንግሊዝኛ", "ታሪክ", "ጂኦግራፊ", "ኢኮኖሚክስ", "ሲቪክስ"]
+    Natural: ["Physics", "Chemistry", "Biology", ...commonSubjects],
+    Social: ["History", "Geography", "Economics", "Civics", ...commonSubjects]
 };
 
 function selectStream(stream) {
     const container = document.getElementById('subjects-container');
     container.innerHTML = '';
-    document.getElementById('stream-title').innerText = (stream === 'Natural' ? 'ናቹራል ሳይንስ' : 'ሶሻል ሳይንስ');
+    document.getElementById('stream-title').innerText = (stream === 'Natural' ? 'Natural Science' : 'Social Science');
     subjects[stream].forEach(subject => {
         let btn = document.createElement('button');
         btn.innerText = subject;
@@ -54,7 +55,7 @@ function selectStream(stream) {
     showPage('subject-list'); 
 }
 
-// 5. አዲሱ የፈተና መጀመሪያ እና ሰዓት ቆጣሪ ሲስተም
+// 5. የፈተና መጀመሪያ እና ሰዓት ቆጣሪ ሲስተም
 let currentQIndex = 0;
 let score = 0;
 let timerInterval;
@@ -67,7 +68,7 @@ function startExam(subject) {
     currentQIndex = 0;
     score = 0;
     let questions = JSON.parse(localStorage.getItem(subject)) || [];
-    if(questions.length === 0) { alert("ጥያቄዎች አልተዘጋጁም!"); return; }
+    if(questions.length === 0) { alert("No questions found for this subject!"); return; }
     
     showPage('quiz-page');
     showQuestion(subject, questions);
@@ -75,11 +76,11 @@ function startExam(subject) {
 
 function startTimer() {
     timeLeft = 60;
-    document.getElementById('timer').innerText = "የቀረዎት ሰዓት: " + timeLeft;
+    document.getElementById('timer').innerText = "Time left: " + timeLeft;
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
         timeLeft--;
-        document.getElementById('timer').innerText = "የቀረዎት ሰዓት: " + timeLeft;
+        document.getElementById('timer').innerText = "Time left: " + timeLeft;
         if(timeLeft <= 0) {
             clearInterval(timerInterval);
             nextQuestion();
@@ -126,6 +127,6 @@ function nextQuestion() {
 // 7. ፈተናን ማጠናቀቂያ ተግባር
 function finishExam(total) {
     clearInterval(timerInterval);
-    document.getElementById('final-score').innerText = "ውጤትዎ: " + score + " ከ " + total;
+    document.getElementById('final-score').innerText = "Your Score: " + score + " out of " + total;
     showPage('result-page');
 }
