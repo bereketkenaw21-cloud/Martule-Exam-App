@@ -1,13 +1,13 @@
 {
-  "name": "መርጡለ ማሪያም School",
-  "short_name": "መርጡለ ማሪያም School",
+  "name": "መርጡለ ማሪያም ፈተና",
+  "short_name": "ማሪያም ፈተና",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "theme_color": "#2196F3",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/2991/2991108.png",
       "sizes": "192x192",
       "type": "image/png"
     }
