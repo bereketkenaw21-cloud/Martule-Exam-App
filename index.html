@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <title>መርጡለ ማሪያም ፈተና</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="splash" class="page">
+        <h1>እንኳን ወደ መርጡለ ማሪያም 2ኛ ደረጃ ትምህርት ቤት የፈተና መለማመጃ በደህና መጡ!</h1>
+        <div class="author">አዘጋጅ፦ በረከት</div>
+        <button onclick="showPage('selection')">ፈተናውን ይጀምሩ</button>
+    </div>
+
+    <div id="selection" class="page hidden">
+        <h2>እባክዎ ይምረጡ</h2>
+        <button onclick="showPage('student-subject')">ተማሪ</button>
+        <button onclick="checkAdmin()">አስተዳደር</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
