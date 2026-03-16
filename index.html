@@ -38,13 +38,26 @@
 
     <div id="admin-panel" class="page hidden">
         <h2>የአስተዳደር ፓናል</h2>
-        <input type="text" id="subjectInput" placeholder="የትምህርት አይነት (ለምሳሌ: ሒሳብ)">
+        <label>የትምህርት አይነት ይምረጡ:</label>
+        <select id="subjectSelect">
+            <option value="ሒሳብ">ሒሳብ</option>
+            <option value="ፊዚክስ">ፊዚክስ</option>
+            <option value="ኬሚስትሪ">ኬሚስትሪ</option>
+            <option value="ባዮሎጂ">ባዮሎጂ</option>
+            <option value="አይሲቲ">አይሲቲ</option>
+            <option value="እንግሊዝኛ">እንግሊዝኛ</option>
+            <option value="ታሪክ">ታሪክ</option>
+            <option value="ጂኦግራፊ">ጂኦግራፊ</option>
+            <option value="ኢኮኖሚክስ">ኢኮኖሚክስ</option>
+            <option value="ሲቪክስ">ሲቪክስ</option>
+        </select>
+        
         <p>ጥያቄዎችን ከ PDF ኮፒ አድርገው እዚህ ይለጥፉ:</p>
-        <textarea id="bulkInput" rows="10" cols="30" placeholder="ጥያቄ (መስመር 1)
-አማራጭ A (መስመር 2)
-አማራጭ B (መስመር 3)
-አማራጭ C (መስመር 4)
-አማራጭ D (መስመር 5)"></textarea>
+        <textarea id="bulkInput" rows="10" cols="30" placeholder="ጥያቄ
+አማራጭ A
+አማራጭ B
+አማራጭ C
+አማራጭ D"></textarea>
         <br>
         <button onclick="parseAndSaveBulk()">ጥያቄዎችን በሙሉ ይጫኑ</button>
         <br><br>
