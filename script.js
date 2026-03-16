@@ -1,132 +1,331 @@
-// 1. ገጾችን ለማቀያየር የሚረዳ ዋና ተግባር
-function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
-    document.getElementById(pageId).classList.remove('hidden');
-}
-
-// 2. የአስተዳደር ኮድ ፍተሻ
-function checkAdmin() {
-    let code = prompt("እባክዎ የአስተዳደር ኮድ ያስገቡ:");
-    if(code === "12161921") {
-        showPage('admin-panel'); 
-    } else {
-        alert("የተሳሳተ ኮድ!");
-    }
-}
-
-// 3. ጥያቄዎችን በBulk (ከPDF/Text) ለማስገባት የሚያስችል የተሻሻለ ሲስተም
-function parseAndSaveBulk() {
-    let rawText = document.getElementById('bulkInput').value;
-    let subject = document.getElementById('subjectSelect').value;
-    let lines = rawText.split('\n').filter(l => l.trim() !== "");
-    let data = JSON.parse(localStorage.getItem(subject)) || [];
-
-    for(let i=0; i < lines.length; i += 5) {
-        if(lines[i]) {
-            data.push({
-                q: lines[i],
-                options: [lines[i+1], lines[i+2], lines[i+3], lines[i+4]],
-                answer: lines[i+1]
-            });
-        }
-    }
-    localStorage.setItem(subject, JSON.stringify(data));
-    alert("Questions for " + subject + " saved successfully!");
-    document.getElementById('bulkInput').value = '';
-}
-
-// 4. የትምህርት ዘርፍ እና አይነት ምርጫ
-const commonSubjects = ["Mathematics", "English", "ICT"];
-const subjects = {
-    Natural: ["Physics", "Chemistry", "Biology", ...commonSubjects],
-    Social: ["History", "Geography", "Economics", "Civics", ...commonSubjects]
-};
-
-function selectStream(stream) {
-    const container = document.getElementById('subjects-container');
-    container.innerHTML = '';
-    document.getElementById('stream-title').innerText = (stream === 'Natural' ? 'Natural Science' : 'Social Science');
-    subjects[stream].forEach(subject => {
-        let btn = document.createElement('button');
-        btn.innerText = subject;
-        btn.onclick = () => startExam(subject);
-        container.appendChild(btn);
-    });
-    showPage('subject-list'); 
-}
-
-// 5. የፈተና መጀመሪያ እና ሰዓት ቆጣሪ ሲስተም
-let currentQIndex = 0;
-let score = 0;
-let timerInterval;
-let timeLeft = 60;
-let currentSubject = "";
-let selectedAnswer = null;
-
-function startExam(subject) {
-    currentSubject = subject;
-    currentQIndex = 0;
-    score = 0;
-    let questions = JSON.parse(localStorage.getItem(subject)) || [];
-    if(questions.length === 0) { alert("No questions found for this subject!"); return; }
-    
-    showPage('quiz-page');
-    showQuestion(subject, questions);
-}
-
-function startTimer() {
-    timeLeft = 60;
-    document.getElementById('timer').innerText = "Time left: " + timeLeft;
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        document.getElementById('timer').innerText = "Time left: " + timeLeft;
-        if(timeLeft <= 0) {
-            clearInterval(timerInterval);
-            nextQuestion();
-        }
-    }, 1000);
-}
-
-// 6. ጥያቄዎችን ማሳየት እና Next ሲስተም
-function showQuestion(subject, questions) {
-    let qData = questions[currentQIndex];
-    document.getElementById('q-text').innerText = (currentQIndex + 1) + ". " + qData.q;
-    const container = document.getElementById('options-container');
-    container.innerHTML = '';
-    
-    document.getElementById('next-button').disabled = true;
-    selectedAnswer = null;
-    
-    let labels = ['A', 'B', 'C', 'D'];
-    qData.options.forEach((opt, index) => {
-        let btn = document.createElement('button');
-        btn.innerText = labels[index] + ") " + opt;
-        btn.onclick = () => {
-            selectedAnswer = opt;
-            document.getElementById('next-button').disabled = false;
-        };
-        container.appendChild(btn);
-    });
-    startTimer();
-}
-
-function nextQuestion() {
-    clearInterval(timerInterval);
-    let questions = JSON.parse(localStorage.getItem(currentSubject));
-    if (selectedAnswer === questions[currentQIndex].answer) score++;
-    
-    currentQIndex++;
-    if (currentQIndex < questions.length) {
-        showQuestion(currentSubject, questions);
-    } else {
-        finishExam(questions.length);
-    }
-}
-
-// 7. ፈተናን ማጠናቀቂያ ተግባር
-function finishExam(total) {
-    clearInterval(timerInterval);
-    document.getElementById('final-score').innerText = "Your Score: " + score + " out of " + total;
-    showPage('result-page');
-}
+‎// 1. ገጾችን ለማቀያየር የሚረዳ ተግባር
+‎const showPage = (id) => {
+‎    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+‎    document.getElementById(id).classList.remove('hidden');
+‎};
+‎
+‎// 2. የአስተዳደር ኮድ (Password: 12161921)
+‎const checkAdmin = () => {
+‎    if(prompt("Enter Admin Code:") === "12161921") showPage('admin-panel');
+‎    else alert("Wrong Code!");
+‎};
+‎
+‎// 3. Database: Part 1 - Mathematics (100 Questions)
+‎const hardcodedQuestions = {
+‎    "Mathematics": [
+‎        {q:"Derivative of x^2", o:["2x","x","2","x^3"], a:"2x"},
+‎        {q:"Value of log2(8)", o:["3","2","4","1"], a:"3"},
+‎        {q:"Solve x^2-5x+6=0", o:["2,3","-2,-3","1,6","5,1"], a:"2,3"},
+‎        {q:"sin(30°)", o:["0.5","1","0","0.866"], a:"0.5"},
+‎        {q:"√625", o:["25","15","35","20"], a:"25"},
+‎        {q:"Area of circle (r=7)", o:["154","44","49","14"], a:"154"},
+‎        {q:"Value of 5!", o:["120","60","100","24"], a:"120"},
+‎        {q:"Slope of y=3x+5", o:["3","5","1","0"], a:"3"},
+‎        {q:"Limit of 1/x as x->∞", o:["0","1","∞","Undef"], a:"0"},
+‎        {q:"2^5", o:["32","16","64","10"], a:"32"},
+‎        {q:"Sum of angles in Triangle", o:["180°","360°","90°","270°"], a:"180°"},
+‎        {q:"x+y=10, x-y=2, x=?", o:["6","4","8","5"], a:"6"},
+‎        {q:"tan(45°)", o:["1","0","∞","0.5"], a:"1"},
+‎        {q:"10% of 500", o:["50","5","100","500"], a:"50"},
+‎        {q:"√1", o:["1","0","-1","2"], a:"1"},
+‎        {q:"Median of 1,3,5,7,9", o:["5","3","7","4"], a:"5"},
+‎        {q:"2π rad in degrees", o:["360°","180°","90°","270°"], a:"360°"},
+‎        {q:"f(x)=x+10, f(5)=?", o:["15","5","10","50"], a:"15"},
+‎        {q:"i^2 is:", o:["-1","1","0","i"], a:"-1"},
+‎        {q:"Solve 3x-9=0", o:["3","-3","9","0"], a:"3"},
+‎        {q:"cos(0°)", o:["1","0","0.5","-1"], a:"1"},
+‎        {q:"Perimeter of square (s=5)", o:["20","25","10","15"], a:"20"},
+‎        {q:"log10(100)", o:["2","10","1","100"], a:"2"},
+‎        {q:"Diagonal of square (s=1)", o:["√2","2","1","√3"], a:"√2"},
+‎        {q:"Prime number?", o:["13","15","9","21"], a:"13"},
+‎        {q:"Derivative of constant", o:["0","1","x","∞"], a:"0"},
+‎        {q:"1/2 + 1/4", o:["3/4","2/6","1/6","1"], a:"3/4"},
+‎        {q:"7^2", o:["49","14","56","42"], a:"49"},
+‎        {q:"Volume of cube (s=3)", o:["27","9","81","12"], a:"27"},
+‎        {q:"Midpoint of (0,0) & (4,4)", o:["(2,2)","(4,4)","(0,0)","(2,0)"], a:"(2,2)"},
+‎        {q:"sin^2(x)+cos^2(x)", o:["1","0","tan","2"], a:"1"},
+‎        {q:"x^0 (x≠0)", o:["1","0","x","∞"], a:"1"},
+‎        {q:"Is 2 a prime number?", o:["Yes","No","Even only","None"], a:"Yes"},
+‎        {q:"Cube root of 64", o:["4","8","2","16"], a:"4"},
+‎        {q:"15% of 200", o:["30","20","15","40"], a:"30"},
+‎        {q:"Hypotenuse of 3,4 triangle", o:["5","7","6","12"], a:"5"},
+‎        {q:"log(1)", o:["0","1","10","e"], a:"0"},
+‎        {q:"Simplify 2/10", o:["1/5","1/2","0.5","2"], a:"1/5"},
+‎        {q:"Is 9 a prime?", o:["No","Yes","Odd only","None"], a:"No"},
+‎        {q:"Octagon sides", o:["8","6","10","12"], a:"8"},
+‎        {q:"4*5*2", o:["40","20","10","60"], a:"40"},
+‎        {q:"Half of 75", o:["37.5","35","38","40"], a:"37.5"},
+‎        {q:"1kg = ?g", o:["1000","100","10","500"], a:"1000"},
+‎        {q:"√10000", o:["100","10","1000","50"], a:"100"},
+‎        {q:"Solve x-5=10", o:["15","5","-5","50"], a:"15"},
+‎        {q:"Mean of 10,20,30", o:["20","15","25","60"], a:"20"},
+‎        {q:"y-intercept of y=2x-4", o:["-4","2","4","0"], a:"-4"},
+‎        {q:"0.5 * 0.2", o:["0.1","0.01","1.0","0.7"], a:"0.1"},
+‎        {q:"Complement of 30°", o:["60°","150°","90°","70°"], a:"60°"},
+‎        {q:"Next in 2,4,8,16...", o:["32","24","20","64"], a:"32"}
+‎        // (እዚህ ጋር 50 ጥያቄዎች አሉ። በክፍል 2 ቀሪዎቹን እና ሌሎች ትምህርቶችን እንቀጥላለን)
+‎    ],
+‎    "English": [
+‎        { q: "She ________ to school every day.", options: ["goes", "go", "going", "gone"], answer: "goes" },
+‎        { q: "If I ________ you, I would study harder.", options: ["were", "am", "was", "be"], answer: "were" },
+‎        { q: "He is ________ honest man.", options: ["an", "a", "the", "no article"], answer: "an" },
+‎        { q: "They have lived here ________ 2010.", options: ["since", "for", "at", "in"], answer: "since" },
+‎        { q: "I'm looking forward to ________ you.", options: ["seeing", "see", "saw", "seen"], answer: "seeing" },
+‎        { q: "Synonym for 'fast'?", options: ["Quick", "Slow", "Hard", "Weak"], answer: "Quick" },
+‎        { q: "The book ________ last year.", options: ["was written", "wrote", "writes", "is writing"], answer: "was written" },
+‎        { q: "Neither Tom ________ Jerry is here.", options: ["nor", "or", "and", "but"], answer: "nor" },
+‎        { q: "He is the boy ________ won the prize.", options: ["who", "whose", "whom", "which"], answer: "who" },
+‎        { q: "It's ________ cold to go out.", options: ["too", "so", "very", "enough"], answer: "too" },
+‎        { q: "I ________ my homework yet.", options: ["haven't finished", "didn't finish", "don't finish", "finished"], answer: "haven't finished" },
+‎        { q: "Listen! Someone ________ the piano.", options: ["is playing", "plays", "played", "play"], answer: "is playing" },
+‎        { q: "The car ________ by my father.", options: ["was washed", "washed", "is washing", "washes"], answer: "was washed" },
+‎        { q: "If it rains, we ________ stay home.", options: ["will", "would", "shall", "were"], answer: "will" },
+‎        { q: "This is the ________ book ever.", options: ["best", "good", "better", "most good"], answer: "best" },
+‎        { q: "You ________ smoke in hospitals.", options: ["mustn't", "don't have to", "should", "can"], answer: "mustn't" },
+‎        { q: "Interested ________ learning music.", options: ["in", "on", "at", "with"], answer: "in" },
+‎        { q: "Mind ________ the door?", options: ["closing", "close", "to close", "closed"], answer: "closing" },
+‎        { q: "He speaks English ________.", options: ["fluently", "fluent", "more fluent", "most fluent"], answer: "fluently" },
+‎        { q: "By next year, I ________ my degree.", options: ["will have finished", "finish", "will finish", "finished"], answer: "will have finished" },
+‎        { q: "Antonym of 'Modern'?", options: ["Ancient", "New", "Current", "Young"], answer: "Ancient" },
+‎        { q: "She is ________ than her sister.", options: ["taller", "tall", "tallest", "more tall"], answer: "taller" },
+‎        { q: "________ you ever been to Paris?", options: ["Have", "Has", "Did", "Were"], answer: "Have" },
+‎        { q: "I ________ to bed late last night.", options: ["went", "go", "gone", "was going"], answer: "went" },
+‎        { q: "The sun ________ in the east.", options: ["rises", "rise", "rising", "rose"], answer: "rises" },
+‎        { q: "We enjoyed ________ in the garden.", options: ["sitting", "sit", "to sit", "sat"], answer: "sitting" },
+‎        { q: "He is afraid ________ dogs.", options: ["of", "with", "at", "by"], answer: "of" },
+‎        { q: "They ________ football at 5 PM.", options: ["were playing", "played", "are playing", "play"], answer: "were playing" },
+‎        { q: "Car is ________ than that one.", options: ["more expensive", "expensive", "expensiver", "most expensive"], answer: "more expensive" },
+‎        { q: "Tell me where ________?", options: ["the station is", "is the station", "station is", "is station"], answer: "the station is" },
+‎        { q: "Working here ________ five hours.", options: ["for", "since", "during", "at"], answer: "for" },
+‎        { q: "You're late, ________?", options: ["aren't you", "are you", "don't you", "haven't you"], answer: "aren't you" },
+‎        { q: "I wish I ________ more money.", options: ["had", "have", "will have", "has"], answer: "had" },
+‎        { q: "Decided ________ a new house.", options: ["to buy", "buying", "buy", "bought"], answer: "to buy" },
+‎        { q: "Synonym of 'Rich'?", options: ["Wealthy", "Poor", "Happy", "Sad"], answer: "Wealthy" },
+‎        { q: "Drinking too ________ coffee lately.", options: ["much", "many", "some", "any"], answer: "much" },
+‎        { q: "Apologized ________ being late.", options: ["for", "to", "at", "with"], answer: "for" },
+‎        { q: "You ________ better see a doctor.", options: ["had", "would", "should", "did"], answer: "had" },
+‎        { q: "Plural of 'Child'?", options: ["Children", "Childs", "Childrens", "Childes"], answer: "Children" },
+‎        { q: "If I ________ rich, I'd travel.", options: ["were", "am", "was", "will be"], answer: "were" },
+‎        { q: "Not seen her ________ Monday.", options: ["since", "for", "on", "at"], answer: "since" },
+‎        { q: "Which is an adjective?", options: ["Beautiful", "Beauty", "Beautifully", "Beautify"], answer: "Beautiful" },
+‎        { q: "Good ________ playing chess.", options: ["at", "in", "with", "on"], answer: "at" },
+‎        { q: "Call when I ________ home.", options: ["get", "will get", "got", "getting"], answer: "get" },
+‎        { q: "Antonym of 'Success'?", options: ["Failure", "Victory", "Win", "Goal"], answer: "Failure" },
+‎        { q: "Prefers tea ________ coffee.", options: ["to", "than", "from", "over"], answer: "to" },
+‎        { q: "It's time we ________.", options: ["left", "leave", "to leave", "leaving"], answer: "left" },
+‎        { q: "I don't know ________ to do.", options: ["what", "which", "who", "whom"], answer: "what" },
+‎        { q: "He is the ________ man.", options: ["richest", "richer", "rich", "most rich"], answer: "richest" },
+‎        { q: "I can't ________ my keys.", options: ["find", "found", "finding", "to find"], answer: "find" }
+‎    ],
+‎    "Physics": [
+‎        { q: "SI unit of force?", options: ["Newton", "Joule", "Watt", "Pascal"], answer: "Newton" },
+‎        { q: "Change of velocity?", options: ["Acceleration", "Speed", "Force", "Power"], answer: "Acceleration" },
+‎        { q: "V = IR is ________ Law.", options: ["Ohm's", "Newton's", "Boyle's", "Hooke's"], answer: "Ohm's" },
+‎        { q: "Speed of light (m/s)?", options: ["3x10^8", "3x10^6", "2x10^8", "3x10^5"], answer: "3x10^8" },
+‎        { q: "Unit of Energy?", options: ["Joule", "Newton", "Watt", "Volt"], answer: "Joule" },
+‎        { q: "Energy of motion?", options: ["Kinetic", "Potential", "Thermal", "Nuclear"], answer: "Kinetic" },
+‎        { q: "Density formula?", options: ["Mass/Volume", "Mass x Volume", "Force/Area", "Work/Time"], answer: "Mass/Volume" },
+‎        { q: "Unit of Power?", options: ["Watt", "Joule", "Ampere", "Ohm"], answer: "Watt" },
+‎        { q: "Car side-view mirror?", options: ["Convex", "Concave", "Plane", "Cylindrical"], answer: "Convex" },
+‎        { q: "Unit of frequency?", options: ["Hertz", "Second", "Meter", "Watt"], answer: "Hertz" },
+‎        { q: "Gravity (g)?", options: ["9.8 m/s^2", "10 m/s", "8.9 m/s^2", "9.8 m/s"], answer: "9.8 m/s^2" },
+‎        { q: "Measure current?", options: ["Ammeter", "Voltmeter", "Ohmmeter", "Galvanometer"], answer: "Ammeter" },
+‎        { q: "Work = Force x ________.", options: ["Displacement", "Velocity", "Time", "Mass"], answer: "Displacement" },
+‎        { q: "Unit of Resistance?", options: ["Ohm", "Volt", "Ampere", "Watt"], answer: "Ohm" },
+‎        { q: "1st Law of Motion?", options: ["Inertia", "Force", "Action", "Gravity"], answer: "Inertia" },
+‎        { q: "Unit of Pressure?", options: ["Pascal", "Newton", "Joule", "Watt"], answer: "Pascal" },
+‎        { q: "Sound is fastest in:", options: ["Solids", "Liquids", "Gases", "Vacuum"], answer: "Solids" },
+‎        { q: "Longest wavelength?", options: ["Red", "Blue", "Violet", "Green"], answer: "Red" },
+‎        { q: "Opposes motion?", options: ["Friction", "Gravity", "Magnetic", "Electric"], answer: "Friction" },
+‎        { q: "Unit of Charge?", options: ["Coulomb", "Volt", "Ampere", "Farad"], answer: "Coulomb" },
+‎        { q: "Power formula?", options: ["Work/Time", "Force x Time", "Mass x Accel", "Work x Time"], answer: "Work/Time" },
+‎        { q: "Vector example:", options: ["Velocity", "Speed", "Mass", "Time"], answer: "Velocity" },
+‎        { q: "Scalar example:", options: ["Mass", "Force", "Weight", "Acceleration"], answer: "Mass" },
+‎        { q: "Temp unit (SI)?", options: ["Kelvin", "Celsius", "Fahrenheit", "Rankine"], answer: "Kelvin" },
+‎        { q: "Light year measures:", options: ["Distance", "Time", "Speed", "Intensity"], answer: "Distance" },
+‎        { q: "Measure air pressure?", options: ["Barometer", "Thermometer", "Manometer", "Hydrometer"], answer: "Barometer" },
+‎        { q: "Ear range (Hz)?", options: ["20-20,000", "0-100", "100-500", "20,000+"], answer: "20-20,000" },
+‎        { q: "Smallest part?", options: ["Atom", "Molecule", "Proton", "Electron"], answer: "Atom" },
+‎        { q: "Negative particle?", options: ["Electron", "Proton", "Neutron", "Positron"], answer: "Electron" },
+‎        { q: "Positive particle?", options: ["Proton", "Electron", "Neutron", "Photon"], answer: "Proton" },
+‎        { q: "Neutral particle?", options: ["Neutron", "Proton", "Electron", "Nucleus"], answer: "Neutron" },
+‎        { q: "Gravitation author?", options: ["Newton", "Einstein", "Galileo", "Kepler"], answer: "Newton" },
+‎        { q: "Heat in vacuum?", options: ["Radiation", "Conduction", "Convection", "Induction"], answer: "Radiation" },
+‎        { q: "Boil water (K)?", options: ["373", "100", "273", "212"], answer: "373" },
+‎        { q: "Melt ice (C)?", options: ["0", "32", "100", "273"], answer: "0" },
+‎        { q: "Resistance R = ?", options: ["V/I", "V*I", "I/V", "P/I"], answer: "V/I" },
+‎        { q: "Potential Energy?", options: ["mgh", "1/2mv^2", "Fd", "ma"], answer: "mgh" },
+‎        { q: "Momentum formula?", options: ["mv", "ma", "Fd", "mgh"], answer: "mv" },
+‎        { q: "Lens in eye?", options: ["Convex", "Concave", "Bifocal", "Plane"], answer: "Convex" },
+‎        { q: "Short-sightedness?", options: ["Myopia", "Hyperopia", "Astigmatism", "Presbyopia"], answer: "Myopia" },
+‎        { q: "F = ma is ________ Law.", options: ["Second", "First", "Third", "Universal"], answer: "Second" },
+‎        { q: "Unit of Capacitance?", options: ["Farad", "Henry", "Tesla", "Weber"], answer: "Farad" },
+‎        { q: "Transformer needs:", options: ["AC only", "DC only", "Both", "None"], answer: "AC only" },
+‎        { q: "Magnetic Flux unit?", options: ["Weber", "Tesla", "Gauss", "Henry"], answer: "Weber" },
+‎        { q: "Earth escape (km/s)?", options: ["11.2", "9.8", "7.9", "42"], answer: "11.2" },
+‎        { q: "Primary light colors?", options: ["RGB", "RYB", "CMY", "RGBY"], answer: "RGB" },
+‎        { q: "AC to DC?", options: ["Rectifier", "Inverter", "Generator", "Motor"], answer: "Rectifier" },
+‎        { q: "Unit of Inductance?", options: ["Henry", "Farad", "Ohm", "Siemens"], answer: "Henry" },
+‎        { q: "Weight formula?", options: ["mg", "ma", "mv", "Fd"], answer: "mg" },
+‎        { q: "Sun energy source?", options: ["Fusion", "Fission", "Burning", "Chemical"], answer: "Fusion" }
+‎    ],
+‎    "Biology": [
+‎        { q: "Basic unit of life?", options: ["Cell", "Tissue", "Organ", "Atom"], answer: "Cell" },
+‎        { q: "Powerhouse of the cell?", options: ["Mitochondria", "Nucleus", "Ribosome", "Golgi"], answer: "Mitochondria" },
+‎        { q: "Process of plants making food?", options: ["Photosynthesis", "Respiration", "Digestion", "Osmosis"], answer: "Photosynthesis" },
+‎        { q: "Gas we breathe in?", options: ["Oxygen", "CO2", "Nitrogen", "Hydrogen"], answer: "Oxygen" },
+‎        { q: "DNA shape?", options: ["Double Helix", "Circle", "Square", "Single strand"], answer: "Double Helix" },
+‎        { q: "Human blood pump?", options: ["Heart", "Lungs", "Brain", "Liver"], answer: "Heart" },
+‎        { q: "Father of Genetics?", options: ["Mendel", "Darwin", "Pasteur", "Hooke"], answer: "Mendel" },
+‎        { q: "Largest organ?", options: ["Skin", "Liver", "Brain", "Heart"], answer: "Skin" },
+‎        { q: "Number of human bones (adult)?", options: ["206", "300", "150", "250"], answer: "206" },
+‎        { q: "Carry oxygen in blood?", options: ["Red cells", "White cells", "Platelets", "Plasma"], answer: "Red cells" },
+‎        { q: "Brain of the cell?", options: ["Nucleus", "Wall", "Cytoplasm", "Vacuole"], answer: "Nucleus" },
+‎        { q: "Protein factory?", options: ["Ribosome", "Lysosome", "Nucleus", "Lipid"], answer: "Ribosome" },
+‎        { q: "Theory of Evolution author?", options: ["Darwin", "Lamarck", "Mendel", "Linnaeus"], answer: "Darwin" },
+‎        { q: "Green pigment in plants?", options: ["Chlorophyll", "Hemoglobin", "Melanin", "Carotene"], answer: "Chlorophyll" },
+‎        { q: "Normal human temp (C)?", options: ["37", "98", "40", "32"], answer: "37" },
+‎        { q: "Study of fungi?", options: ["Mycology", "Zoology", "Botany", "Virology"], answer: "Mycology" },
+‎        { q: "Universal blood donor?", options: ["O-", "AB+", "A+", "B-"], answer: "O-" },
+‎        { q: "Part for water absorption?", options: ["Root", "Leaf", "Stem", "Flower"], answer: "Root" },
+‎        { q: "Master gland?", options: ["Pituitary", "Thyroid", "Adrenal", "Pancreas"], answer: "Pituitary" },
+‎        { q: "Fight infections?", options: ["White cells", "Red cells", "Platelets", "Plasma"], answer: "White cells" }
+‎        // ... (እስከ 100 የሚሞሉ ተጨማሪ ጥያቄዎች)
+‎    ],
+‎    "Chemistry": [
+‎        { q: "Symbol for Water?", options: ["H2O", "CO2", "O2", "NaCl"], answer: "H2O" },
+‎        { q: "Atomic number of Hydrogen?", options: ["1", "2", "6", "8"], answer: "1" },
+‎        { q: "pH of pure water?", options: ["7", "0", "14", "1"], answer: "7" },
+‎        { q: "Table salt formula?", options: ["NaCl", "KCl", "HCl", "NaOH"], answer: "NaCl" },
+‎        { q: "Hardest natural substance?", options: ["Diamond", "Gold", "Iron", "Graphite"], answer: "Diamond" },
+‎        { q: "Symbol for Gold?", options: ["Au", "Ag", "Gd", "Fe"], answer: "Au" },
+‎        { q: "Most abundant gas in air?", options: ["Nitrogen", "Oxygen", "Argon", "CO2"], answer: "Nitrogen" },
+‎        { q: "Acid in lemons?", options: ["Citric", "Acetic", "Lactic", "HCl"], answer: "Citric" },
+‎        { q: "Symbol for Iron?", options: ["Fe", "Ir", "In", "Pb"], answer: "Fe" },
+‎        { q: "Avogadro's number?", options: ["6.02x10^23", "3x10^8", "9.8", "1.6x10^-19"], answer: "6.02x10^23" },
+‎        { q: "Valency of Carbon?", options: ["4", "2", "6", "1"], answer: "4" },
+‎        { q: "Nobel gas example:", options: ["Neon", "Oxygen", "Chlorine", "Sodium"], answer: "Neon" },
+‎        { q: "pH of Acid?", options: ["Less than 7", "7", "More than 7", "14"], answer: "Less than 7" },
+‎        { q: "Symbol for Silver?", options: ["Ag", "Au", "Si", "Sl"], answer: "Ag" },
+‎        { q: "Negatively charged particle?", options: ["Electron", "Proton", "Neutron", "Atom"], answer: "Electron" },
+‎        { q: "Positively charged particle?", options: ["Proton", "Electron", "Neutron", "Molecule"], answer: "Proton" },
+‎        { q: "Formula for Methane?", options: ["CH4", "CO2", "C2H6", "H2O"], answer: "CH4" },
+‎        { q: "Rusting needs water and ___?", options: ["Oxygen", "Nitrogen", "Hydrogen", "CO2"], answer: "Oxygen" },
+‎        { q: "Common name for NaHCO3?", options: ["Baking Soda", "Salt", "Sugar", "Soap"], answer: "Baking Soda" },
+‎        { q: "Mass number is Protons + ___?", options: ["Neutrons", "Electrons", "Atoms", "Nucleus"], answer: "Neutrons" }
+‎    ],
+‎    "Civics": [
+‎        { q: "Highest law of Ethiopia?", options: ["Constitution", "Proclamation", "Regulation", "Custom"], answer: "Constitution" },
+‎        { q: "Eth. Constitution adopted in (EC)?", options: ["1987", "1995", "1974", "1983"], answer: "1987" },
+‎        { q: "Three branches of gov?", options: ["Leg, Exe, Jud", "Police, Army, Gov", "King, Queen, Lord", "None"], answer: "Leg, Exe, Jud" },
+‎        { q: "Human Rights are ________.", options: ["Inalienable", "Purchasable", "Temporary", "Gift"], answer: "Inalienable" },
+‎        { q: "Capital of AU?", options: ["Addis Ababa", "Nairobi", "Lagos", "Cairo"], answer: "Addis Ababa" },
+‎        { q: "Rule of ________ (Equality)?", options: ["Law", "King", "Force", "Money"], answer: "Law" },
+‎        { q: "Flag colors of Ethiopia?", options: ["Green, Yellow, Red", "Blue, White, Red", "Red, Black, White", "None"], answer: "Green, Yellow, Red" },
+‎        { q: "FDRE stands for?", options: ["Fed. Dem. Rep. Eth.", "Fed. Dem. Rule Eth.", "Fed. Dev. Rep. Eth.", "None"], answer: "Fed. Dem. Rep. Eth." },
+‎        { q: "One who pays tax is:", options: ["Patriot", "Criminal", "Lazy", "Rich"], answer: "Patriot" },
+‎        { q: "Self-rule for nations?", options: ["Federalism", "Unitary", "Monarchy", "Anarchy"], answer: "Federalism" },
+‎        { q: "Right to life is a ___ right.", options: ["Fundamental", "Optional", "Luxury", "Secondary"], answer: "Fundamental" },
+‎        { q: "Voting age in Ethiopia?", options: ["18", "21", "16", "25"], answer: "18" },
+‎        { q: "House of Peoples' Representatives seat?", options: ["Addis Ababa", "Gondar", "Hawassa", "Adama"], answer: "Addis Ababa" },
+‎        { q: "Equality of religion is ___.", options: ["Secularism", "Theocracy", "Atheism", "Monarchy"], answer: "Secularism" },
+‎        { q: "Who elects the PM?", options: ["Parliament", "People", "King", "Court"], answer: "Parliament" },
+‎        { q: "A good citizen is ___.", options: ["Responsible", "Lazy", "Criminal", "Selfish"], answer: "Responsible" },
+‎        { q: "National anthem title?", options: ["Wodefit Gesigeshi", "Ethiopia Hoy", "Tizita", "None"], answer: "Wodefit Gesigeshi" },
+‎        { q: "Number of regions (Initial)?", options: ["9", "11", "5", "14"], answer: "9" },
+‎        { q: "The Speaker of the House is ___.", options: ["Chairperson", "Judge", "Police", "Citizen"], answer: "Chairperson" },
+‎        { q: "UDHR stands for ___.", options: ["Univ. Decl. Human Rights", "Unit. Dev. Human Rights", "Univ. Dem. Human Rights", "None"], answer: "Univ. Decl. Human Rights" }
+‎    ],
+‎    "Geography": [
+‎        { q: "Highest mountain in Africa?", options: ["Kilimanjaro", "Ras Dashen", "Everest", "Kenya"], answer: "Kilimanjaro" },
+‎        { q: "Longest river in the world?", options: ["Nile", "Amazon", "Congo", "Mississippi"], answer: "Nile" },
+‎        { q: "Largest continent?", options: ["Asia", "Africa", "Europe", "N. America"], answer: "Asia" },
+‎        { q: "Imaginary line at 0° Latitude?", options: ["Equator", "Greenwich", "Tropic of Cancer", "Poles"], answer: "Equator" },
+‎        { q: "Largest ocean?", options: ["Pacific", "Atlantic", "Indian", "Arctic"], answer: "Pacific" },
+‎        { q: "Ras Dashen height (meters)?", options: ["4533", "5895", "8848", "4000"], answer: "4533" },
+‎        { q: "Planet we live on?", options: ["Earth", "Mars", "Venus", "Jupiter"], answer: "Earth" },
+‎        { q: "Study of maps?", options: ["Cartography", "Geology", "Biology", "History"], answer: "Cartography" },
+‎        { q: "Number of continents?", options: ["7", "5", "6", "8"], answer: "7" },
+‎        { q: "Capital of Ethiopia?", options: ["Addis Ababa", "Gondar", "Hawassa", "Mekelle"], answer: "Addis Ababa" },
+‎        { q: "Largest desert?", options: ["Sahara", "Gobi", "Kalahari", "Namib"], answer: "Sahara" },
+‎        { q: "Red Sea outlet?", options: ["Bab-el-Mandeb", "Suez Canal", "Gibraltar", "Hormuz"], answer: "Bab-el-Mandeb" },
+‎        { q: "Rainfall type in Ethiopia?", options: ["Summer/Bega", "Winter", "Monsoon", "Cyclone"], answer: "Summer/Bega" },
+‎        { q: "Layers of Earth (Outer)?", options: ["Crust", "Mantle", "Core", "Magma"], answer: "Crust" },
+‎        { q: "Greenwich Meridian (Deg)?", options: ["0°", "90°", "180°", "45°"], answer: "0°" },
+‎        { q: "Earth's twin planet?", options: ["Venus", "Mars", "Mercury", "Saturn"], answer: "Venus" },
+‎        { q: "High land of Ethiopia?", options: ["Roof of Africa", "Lowland", "Desert", "Island"], answer: "Roof of Africa" },
+‎        { q: "Soil type for agriculture?", options: ["Loam", "Sand", "Clay", "Rock"], answer: "Loam" },
+‎        { q: "Global warming gas?", options: ["CO2", "Oxygen", "Nitrogen", "Argon"], answer: "CO2" },
+‎        { q: "Direction of Sunrise?", options: ["East", "West", "North", "South"], answer: "East" }
+‎    ],
+‎    "History": [
+‎        { q: "Battle of Adwa date (EC)?", options: ["1888", "1896", "1928", "1872"], answer: "1888" },
+‎        { q: "Who led Battle of Adwa?", options: ["Menelik II", "Haile Selassie", "Tewodros II", "Yohannes IV"], answer: "Menelik II" },
+‎        { q: "First modern human (Lucy)?", options: ["Dinknesh", "Ardi", "Selam", "Homo Sapien"], answer: "Dinknesh" },
+‎        { q: "Axumite king (Christianity)?", options: ["Ezana", "Kaleb", "Zoskales", "Armah"], answer: "Ezana" },
+‎        { q: "Last emperor of Ethiopia?", options: ["Haile Selassie", "Menelik II", "Lij Iyasu", "Tewodros II"], answer: "Haile Selassie" },
+‎        { q: "Lalibela churches built by?", options: ["King Lalibela", "King Kaleb", "King Ezana", "King Fasiledes"], answer: "King Lalibela" },
+‎        { q: "WWII start year?", options: ["1939", "1914", "1945", "1918"], answer: "1939" },
+‎        { q: "Father of History?", options: ["Herodotus", "Thucydides", "Plato", "Socrates"], answer: "Herodotus" },
+‎        { q: "Ancient Egypt writing?", options: ["Hieroglyphics", "Cuneiform", "Latin", "Ge'ez"], answer: "Hieroglyphics" },
+‎        { q: "French Revolution year?", options: ["1789", "1776", "1815", "1917"], answer: "1789" },
+‎        { q: "Founder of Gondar?", options: ["Fasiledes", "Bakaffa", "Iyasu I", "Menelik"], answer: "Fasiledes" },
+‎        { q: "Italian occupation years?", options: ["5 years", "10 years", "2 years", "1 year"], answer: "5 years" },
+‎        { q: "Berlin Conference year?", options: ["1884", "1890", "1870", "1900"], answer: "1884" },
+‎        { q: "King Tewodros died at?", options: ["Magdala", "Adwa", "Gondar", "Mekelle"], answer: "Magdala" },
+‎        { q: "Axum Obelisk returned from?", options: ["Italy", "UK", "France", "USA"], answer: "Italy" },
+‎        { q: "First President of Ethiopia?", options: ["Wolde-Giorgis", "Mengistu", "Meles", "Negaso"], answer: "Wolde-Giorgis" },
+‎        { q: "Industrial Revolution start?", options: ["England", "USA", "Germany", "France"], answer: "England" },
+‎        { q: "Cold War power (East)?", options: ["USSR", "USA", "UK", "Japan"], answer: "USSR" },
+‎        { q: "League of Nations seat?", options: ["Geneva", "New York", "Paris", "London"], answer: "Geneva" },
+‎        { q: "OAU founded in?", options: ["1963", "1970", "1950", "1980"], answer: "1963" }
+‎    ],
+‎    "Economics": [
+‎        { q: "Father of Economics?", options: ["Adam Smith", "Karl Marx", "Keynes", "Ricardo"], answer: "Adam Smith" },
+‎        { q: "Study of small units?", options: ["Microeconomics", "Macroeconomics", "Finance", "Statistics"], answer: "Microeconomics" },
+‎        { q: "GDP stands for?", options: ["Gross Dom. Product", "Gross Dev. Plan", "General Dom. Price", "None"], answer: "Gross Dom. Product" },
+‎        { q: "Law of Demand: Price ↑, Demand?", options: ["Decreases", "Increases", "Stays same", "Zero"], answer: "Decreases" },
+‎        { q: "Currency of Ethiopia?", options: ["Birr", "Dollar", "Pound", "Euro"], answer: "Birr" },
+‎        { q: "Inflation is rise in ________.", options: ["Prices", "Income", "Saving", "Work"], answer: "Prices" },
+‎        { q: "Tax on imported goods?", options: ["Tariff", "Quota", "Subsidy", "Income tax"], answer: "Tariff" },
+‎        { q: "Market with one seller?", options: ["Monopoly", "Oligopoly", "Competition", "Duopoly"], answer: "Monopoly" },
+‎        { q: "Resources are ________.", options: ["Limited", "Unlimited", "Free", "Infinite"], answer: "Limited" },
+‎        { q: "Primary sector example?", options: ["Agriculture", "Factory", "Banking", "Teaching"], answer: "Agriculture" },
+‎        { q: "Money is a medium of ___?", options: ["Exchange", "Gift", "Waste", "None"], answer: "Exchange" },
+‎        { q: "Bank of Ethiopia founder?", options: ["Menelik II", "Haile Selassie", "Tewodros", "Meles"], answer: "Menelik II" },
+‎        { q: "Opportunity cost is ___?", options: ["Next best choice", "Price", "Loss", "Profit"], answer: "Next best choice" },
+‎        { q: "Labor is a factor of ___?", options: ["Production", "Consumption", "Waste", "Saving"], answer: "Production" },
+‎        { q: "Deficit is when ___ > Revenue?", options: ["Spending", "Saving", "Tax", "None"], answer: "Spending" },
+‎        { q: "World Bank HQ?", options: ["Washington DC", "Geneva", "London", "Paris"], answer: "Washington DC" },
+‎        { q: "Main export of Ethiopia?", options: ["Coffee", "Gold", "Tea", "Oil"], answer: "Coffee" },
+‎        { q: "Equilibrium is where D = ___?", options: ["Supply", "Price", "Cost", "Tax"], answer: "Supply" },
+‎        { q: "IMF stands for ___?", options: ["Int. Monetary Fund", "Int. Money Fund", "Int. Market Fund", "None"], answer: "Int. Monetary Fund" },
+‎        { q: "Unemployment is lack of ___?", options: ["Jobs", "Money", "Food", "School"], answer: "Jobs" }
+‎    ]
+‎};
+‎
+‎// --- ከዚህ በታች ያለው የኮድ ክፍል ፈተናውን የሚያንቀሳቅስ ነው ---
+‎
+‎const subjects = {
+‎    Natural: ["Physics", "Chemistry", "Biology", "Mathematics", "English"],
+‎    Social: ["History", "Geography", "Economics", "Civics", "Mathematics", "English"]
+‎};
+‎
+‎function selectStream(stream) {
+‎    const container = document.getElementById('subjects-container');
+‎    container.innerHTML = '';
+‎    document.getElementById('stream-title').innerText = stream + " Stream Subjects";
+‎    subjects[stream].forEach(subject => {
+‎        let btn = document.createElement('button');
+‎        btn.innerText = subject;
+‎        btn.onclick = () => startExam(subject);
+‎        container.appendChild(btn);
+‎    });
+‎    showPage('subject-list'); 
+‎}
+‎
+‎let currentQIndex = 0, score = 0, timerInterval, timeLeft = 60, currentSubject = "", selectedAnswer = null;
+‎
+‎function startExam(subject) {
+‎    currentSubject = subject; currentQIndex = 0; score = 0;
+‎    let questions = hardcodedQuestions[subject
