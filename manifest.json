@@ -1,15 +1,14 @@
 {
-  "name": "የፈተና መለማመጃ",
-  "short_name": "ፈተና",
-  "start_url": "/Martule-Exam-App/index.html",
+  "name": "Mertule Mariyam Exam System",
+  "short_name": "MertuleExam",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#2196F3",
-  "orientation": "portrait",
+  "theme_color": "#1a73e8",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2991/2991108.png",
-      "sizes": "192x192",
+      "src": "https://cdn-icons-png.flaticon.com/512/3061/3061211.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
