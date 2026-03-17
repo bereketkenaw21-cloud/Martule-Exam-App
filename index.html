@@ -30,21 +30,22 @@
         <h2 id="stream-title">የጥናት ዘርፍዎን ይምረጡ</h2>
         <div class="grid">
             <button class="card" onclick="loadSubjects('Natural')">Natural Science</button>
-            <button class="card" onclick="loadSubjects('Social')">Social Science</button>
+            <button class="card" onclick="Social" onclick="loadSubjects('Social')">Social Science</button>
         </div>
         <button class="back-link" onclick="showPage('main-page')">ተመለስ</button>
     </div>
 
     <div id="subject-page" class="page container hidden">
         <h2 id="stream-display-title">Subjects</h2>
-        <div class="grid" id="subject-list"></div>
+        <div class="grid" id="subject-list">
+            </div>
         <button class="back-link" onclick="showPage('stream-page')">ተመለስ</button>
     </div>
 
     <div id="quiz-page" class="page container hidden">
         <div class="quiz-nav">
             <span id="q-counter">ጥያቄ 1/10</span>
-            <span id="timer">ጊዜ፡ 01:30:00</span>
+            <span id="timer" style="font-weight: bold; color: #d93025;">ጊዜ፡ 01:30:00</span>
         </div>
         <div class="question-box">
             <p id="q-text">ጥያቄ እዚህ ጋር ይቀርባል...</p>
@@ -62,7 +63,8 @@
 
     <div id="admin-panel" class="page container hidden">
         <h2>Admin Control Panel</h2>
-        <select id="admin-subject" class="option-btn">
+        <p>ጥያቄ የሚጭኑበትን ሳብጀክት ይምረጡ፡</p>
+        <select id="admin-subject" class="option-btn" style="margin-bottom: 15px; width: 100%; padding: 10px;">
             <option value="Mathematics">Mathematics</option>
             <option value="Physics">Physics</option>
             <option value="Biology">Biology</option>
@@ -73,17 +75,20 @@
             <option value="Economics">Economics</option>
             <option value="Civics">Civics</option>
         </select>
-        <textarea id="raw-input" placeholder="ጥያቄዎችን እዚህ ይለጥፉ..."></textarea>
-        <button class="btn-save" onclick="processAndSave()">ጥያቄዎቹን ጫን</button>
-        <button class="btn-danger" onclick="clearSystem()">ሁሉንም ዳታ አጥፋ (Reset)</button>
+        <textarea id="raw-input" placeholder="ጥያቄዎችን በዚህ ፎርማት ያስገቡ፡&#10;ጥያቄ [ምርጫ1, ምርጫ2, ምርጫ3, ምርጫ4] ትክክለኛ መልስ"></textarea>
+        <button class="btn-save" onclick="processAndSave()" style="background-color: #188038; color: white;">ጥያቄዎቹን ጫን</button>
+        <button class="btn-danger" onclick="clearSystem()" style="background-color: #d93025; color: white; margin-top: 10px;">ሁሉንም ዳታ አጥፋ (Reset)</button>
         <br><br>
         <button class="back-link" onclick="showPage('main-page')">ተመለስ</button>
     </div>
 
     <script src="script.js"></script>
     <script>
+      // Service Worker ለ Install እንዲሆን
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
+        navigator.serviceWorker.register('sw.js').then(() => {
+          console.log('Service Worker Registered');
+        });
       }
     </script>
 </body>
