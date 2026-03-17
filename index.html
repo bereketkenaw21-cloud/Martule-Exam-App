@@ -1,204 +1,90 @@
-// 1. የቋንቋ ዳታ (አማርኛ እና እንግሊዝኛ)
-const i18n = {
-    am: {
-        welcome: "እንኳን ወደ መርጡለ ማሪያም 2ኛ ደረጃ ትምህርት ቤት የፈተና መለማመጃ ገፅ በደህና መጣቹህ",
-        creator: "አዘጋጅ፡ በረከት ቀናው",
-        studentBtn: "የተማሪዎች መግቢያ",
-        adminBtn: "አስተዳዳሪ (Admin)",
-        streamTitle: "የጥናት ዘርፍዎን ይምረጡ",
-        timerText: "የቀረ ጊዜ፡ ",
-        next: "ቀጣይ",
-        submit: "ጨርስ",
-        back: "ተመለስ",
-        resultTitle: "የፈተና ውጤት",
-        adminPanelTitle: "የአስተዳዳሪ ክፍል (Admin)"
-    },
-    en: {
-        welcome: "Welcome to Mertule Mariyam Secondary School Exam Practice System",
-        creator: "Developed by: Bereket Kenaw",
-        studentBtn: "Student Entrance",
-        adminBtn: "Admin",
-        streamTitle: "Select Your Stream",
-        timerText: "Time Left: ",
-        next: "Next",
-        submit: "Submit",
-        back: "Back",
-        resultTitle: "Exam Result",
-        adminPanelTitle: "Admin Dashboard"
-    }
-};
-
-let currentLang = 'am';
-
-// 2. ዳታ ቤዝ (Database) - ከኮምፒውተሩ Memory ይፈልጋል
-let questionsDB = JSON.parse(localStorage.getItem('mertule_db')) || {
-    Natural: { Mathematics: [], Physics: [], Biology: [], Chemistry: [], English: [] },
-    Social: { History: [], Geography: [], Economics: [], Civics: [], Mathematics: [], English: [] }
-};
-
-// 3. Variables
-let currentSubject = [];
-let qIndex = 0;
-let score = 0;
-let timeLeft = 90 * 60; // 1 ሰዓት ከ 30 ደቂቃ
-let timerInterval;
-let selectedValue = "";
-
-// 4. ቋንቋ መቀየሪያ ተግባር (አዲስ የተጨመረ)
-function setLanguage(lang) {
-    currentLang = lang;
-    document.getElementById('welcome-text').innerText = i18n[lang].welcome;
-    document.getElementById('creator-text').innerText = i18n[lang].creator;
-    document.getElementById('student-btn').innerText = i18n[lang].studentBtn;
-    document.getElementById('admin-btn').innerText = i18n[lang].adminBtn;
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mertule Mariyam Exam System</title>
     
-    // ሌሎች ገጾች ላይ ያሉ ጽሁፎችንም ይቀይራል
-    const backBtns = document.querySelectorAll('.back-link');
-    backBtns.forEach(btn => btn.innerText = i18n[lang].back);
-}
-
-// 5. የአድሚን መግቢያ (Mertule Mariyam@2026)
-function promptAdmin() {
-    let pw = prompt("የአስተዳዳሪ ኮድ ያስገቡ (Admin Password):");
-    if(pw === "Mertule Mariyam@2026") {
-        showPage('admin-panel');
-    } else {
-        alert("የተሳሳተ ኮድ ነው!");
-    }
-}
-
-// 6. ጥያቄዎችን በጅምላ መጫኛ (PDF Parser)
-function processAndSave() {
-    let stream = prompt("ዘርፍ ይምረጡ (Natural/Social):");
-    if (stream !== "Natural" && stream !== "Social") return alert("እባክዎ 'Natural' ወይም 'Social' ብለው በትክክል ይጻፉ!");
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Mertule%20Mariyam%20Exam%20System%22,%22short_name%22:%22Mertule%22,%22start_url%22:%22index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#1a73e8%22}">
     
-    let subject = document.getElementById('admin-subject').value;
-    let rawText = document.getElementById('raw-input').value;
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-    let lines = rawText.split('\n');
-    let addedCount = 0;
-
-    lines.forEach(line => {
-        if(line.includes('?')) {
-            try {
-                let parts = line.split('?');
-                let q = parts[0] + "?";
-                let rest = parts[1].split(']');
-                let opts = rest[0].replace('[','').split(',');
-                let ans = rest[1].trim();
-
-                questionsDB[stream][subject].push({
-                    q: q,
-                    options: opts.map(o => o.trim()),
-                    answer: ans
-                });
-                addedCount++;
-            } catch(e) { console.log("ስህተት ያለበት መስመር ታልፏል"); }
-        }
-    });
-
-    localStorage.setItem('mertule_db', JSON.stringify(questionsDB));
-    alert(addedCount + " ጥያቄዎች በተሳካ ሁኔታ ተጭነዋል!");
-    document.getElementById('raw-input').value = "";
-}
-
-// 7. የፈተና ሂደት
-function loadSubjects(stream) {
-    const list = document.getElementById('subject-list');
-    list.innerHTML = '';
-    document.getElementById('stream-title').innerText = i18n[currentLang].streamTitle + " (" + stream + ")";
-    
-    Object.keys(questionsDB[stream]).forEach(sub => {
-        let btn = document.createElement('button');
-        btn.className = 'card';
-        btn.innerText = sub;
-        btn.onclick = () => startExam(stream, sub);
-        list.appendChild(btn);
-    });
-    showPage('subject-page');
-}
-
-function startExam(stream, subject) {
-    currentSubject = questionsDB[stream][subject];
-    if(currentSubject.length === 0) return alert("በዚህ ትምህርት ጥያቄ አልተጫነም!");
-    
-    qIndex = 0; score = 0; timeLeft = 90 * 60;
-    showPage('quiz-page');
-    displayQuestion();
-    startTimer();
-}
-
-// ምርጫዎቹን A, B, C, D የሚያደርገው ዋናው ተግባር
-function displayQuestion() {
-    let qData = currentSubject[qIndex];
-    const prefixes = ['A', 'B', 'C', 'D']; 
-    
-    document.getElementById('q-counter').innerText = `ጥያቄ ${qIndex + 1}/${currentSubject.length}`;
-    document.getElementById('q-text').innerText = qData.q;
-    
-    const optCont = document.getElementById('options');
-    optCont.innerHTML = '';
-    
-    qData.options.forEach((opt, i) => {
-        let btn = document.createElement('button');
-        btn.className = 'option-btn';
-        // A, B, C, D ፊደላትን ለመጨመር
-        btn.innerHTML = `<span class="prefix">${prefixes[i]}.</span> ${opt}`;
-        btn.onclick = () => selectOption(btn, opt);
-        optCont.appendChild(btn);
-    });
-    document.getElementById('next-btn').disabled = true;
-}
-
-function selectOption(btn, val) {
-    selectedValue = val;
-    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    document.getElementById('next-btn').disabled = false;
-}
-
-function submitAnswer() {
-    if(selectedValue === currentSubject[qIndex].answer) score++;
-    qIndex++;
-    
-    if(qIndex < currentSubject.length) {
-        displayQuestion();
-    } else {
-        endExam();
-    }
-}
-
-function startTimer() {
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        let hrs = Math.floor(timeLeft / 3600);
-        let min = Math.floor((timeLeft % 3600) / 60);
-        let sec = timeLeft % 60;
+    <div id="main-page" class="page container">
+        <div class="language-switcher">
+            <span onclick="setLanguage('am')">ET አማርኛ</span> | <span onclick="setLanguage('en')">US English</span>
+        </div>
+        <div class="main-icon">🎓</div>
+        <h1 id="welcome-text">እንኳን ወደ መርጡለ ማሪያም 2ኛ ደረጃ ትምህርት ቤት የፈተና መለማመጃ ገፅ በደህና መጣቹህ</h1>
+        <p class="creator" id="creator-text">አዘጋጅ፡ በረከት ቀናው</p>
         
-        document.getElementById('timer').innerText = `${i18n[currentLang].timerText} ${hrs}:${min < 10 ? '0'+min : min}:${sec < 10 ? '0'+sec : sec}`;
-        
-        if(timeLeft <= 0) {
-            alert("ጊዜዎ አልቋል! ሲስተሙ ተቆልፏል።");
-            endExam();
-        }
-    }, 1000);
-}
+        <div class="action-buttons">
+            <button class="btn-primary" id="student-btn" onclick="showPage('stream-page')">የተማሪዎች መግቢያ</button>
+            <br>
+            <button class="btn-admin" id="admin-btn" onclick="promptAdmin()">Admin</button>
+        </div>
+    </div>
 
-function endExam() {
-    clearInterval(timerInterval);
-    showPage('result-page');
-    document.getElementById('score-display').innerText = `${score} / ${currentSubject.length}`;
-}
+    <div id="stream-page" class="page container hidden">
+        <h2 id="stream-title">የጥናት ዘርፍዎን ይምረጡ</h2>
+        <div class="grid">
+            <button class="card" onclick="loadSubjects('Natural')">Natural Science</button>
+            <button class="card" onclick="loadSubjects('Social')">Social Science</button>
+        </div>
+        <button class="back-link" onclick="showPage('main-page')">ተመለስ</button>
+    </div>
 
-function showPage(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-}
+    <div id="subject-page" class="page container hidden">
+        <h2 id="stream-display-title">Subjects</h2>
+        <div class="grid" id="subject-list"></div>
+        <button class="back-link" onclick="showPage('stream-page')">ተመለስ</button>
+    </div>
 
-function clearSystem() {
-    if(confirm("ሁሉንም ጥያቄዎች ለማጥፋት እርግጠኛ ነዎት?")) {
-        localStorage.removeItem('mertule_db');
-        location.reload();
-    }
-}
+    <div id="quiz-page" class="page container hidden">
+        <div class="quiz-nav">
+            <span id="q-counter">ጥያቄ 1/10</span>
+            <span id="timer">ጊዜ፡ 01:30:00</span>
+        </div>
+        <div class="question-box">
+            <p id="q-text">ጥያቄ እዚህ ጋር ይቀርባል...</p>
+            <div id="options"></div>
+        </div>
+        <button id="next-btn" class="btn-primary" onclick="submitAnswer()" disabled>ቀጣይ</button>
+    </div>
+
+    <div id="result-page" class="page container hidden">
+        <h2>የፈተና ውጤት</h2>
+        <div class="main-icon">🏆</div>
+        <h1 id="score-display">0 / 0</h1>
+        <button class="btn-primary" onclick="location.reload()">ወደ መጀመሪያ ተመለስ</button>
+    </div>
+
+    <div id="admin-panel" class="page container hidden">
+        <h2>Admin Control Panel</h2>
+        <select id="admin-subject" class="option-btn">
+            <option value="Mathematics">Mathematics</option>
+            <option value="Physics">Physics</option>
+            <option value="Biology">Biology</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="English">English</option>
+            <option value="History">History</option>
+            <option value="Geography">Geography</option>
+            <option value="Economics">Economics</option>
+            <option value="Civics">Civics</option>
+        </select>
+        <textarea id="raw-input" placeholder="ጥያቄዎችን እዚህ ይለጥፉ..."></textarea>
+        <button class="btn-save" onclick="processAndSave()">ጥያቄዎቹን ጫን</button>
+        <button class="btn-danger" onclick="clearSystem()">ሁሉንም ዳታ አጥፋ (Reset)</button>
+        <br><br>
+        <button class="back-link" onclick="showPage('main-page')">ተመለስ</button>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
+</body>
+</html>
