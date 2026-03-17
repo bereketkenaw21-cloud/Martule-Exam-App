@@ -1,96 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="am">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Practice</title>
+    <title>መርጡለ ማሪያም 2ኛ ደረጃ ትምህርት ቤት</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-    <div id="splash" class="page">
-        <h1>Welcome to Martule Mariam Exam Practice!</h1>
-        <div class="author">Developed by: Berket</div>
-        <button onclick="showPage('selection')">Start Exam</button>
-    </div>
+    <div class="container">
+        <section id="welcome-page" class="page">
+            <div class="hero">
+                <i class="fas fa-user-graduate main-icon"></i>
+                <h1>እንኳን ወደ መርጡለ ማሪያም 2ኛ ደረጃ ትምህርት ቤት የፈተና መለማመጃ ገፅ በደህና መጣቹህ</h1>
+                <p class="creator">አዘጋጅ፡ በረከት ቀናው</p>
+                <div class="main-buttons">
+                    <button onclick="showPage('student-gate')" class="btn-primary">የተማሪዎች መግቢያ</button>
+                    <button onclick="promptAdmin()" class="btn-admin">Admin</button>
+                </div>
+            </div>
+        </section>
 
-    <div id="selection" class="page hidden">
-        <h2>Please Select</h2>
-        <button onclick="showPage('student-stream')">Student</button>
-        <button onclick="checkAdmin()">Admin</button>
-    </div>
+        <section id="student-gate" class="page hidden">
+            <h2>የጥናት ዘርፍዎን ይምረጡ</h2>
+            <div class="grid">
+                <button onclick="loadSubjects('Natural')" class="card">Natural Science</button>
+                <button onclick="loadSubjects('Social')" class="card">Social Science</button>
+            </div>
+            <button onclick="showPage('welcome-page')" class="back-link">ተመለስ</button>
+        </section>
 
-    <div id="student-stream" class="page hidden">
-        <h2>Select Your Stream</h2>
-        <button onclick="selectStream('Natural')">Natural Science</button>
-        <button onclick="selectStream('Social')">Social Science</button>
-        <br><br>
-        <button onclick="showPage('selection')">Back</button>
-    </div>
+        <section id="subject-page" class="page hidden">
+            <h2 id="stream-title">ትምህርት ይምረጡ</h2>
+            <div id="subject-list" class="grid"></div>
+            <button onclick="showPage('student-gate')" class="back-link">ተመለስ</button>
+        </section>
 
-    <div id="subject-list" class="page hidden">
-        <h2 id="stream-title">Subjects</h2>
-        <div id="subjects-container"></div>
-        <br><br>
-        <button onclick="showPage('student-stream')">Back</button>
-    </div>
+        <section id="quiz-page" class="page hidden">
+            <div class="quiz-nav">
+                <div id="timer">ጊዜ፡ 01:30:00</div>
+                <div id="q-counter">ጥያቄ 1/--</div>
+            </div>
+            <div class="question-box">
+                <p id="q-text"></p>
+                <div id="options"></div>
+            </div>
+            <div class="quiz-footer">
+                <button id="next-btn" onclick="submitAnswer()" disabled>ቀጣይ</button>
+            </div>
+        </section>
 
-    <div id="admin-panel" class="page hidden">
-        <h2>Admin Panel</h2>
-        <label>Select Subject:</label>
-        <select id="subjectSelect">
-            <option value="Mathematics">Mathematics</option>
-            <option value="Physics">Physics</option>
-            <option value="Chemistry">Chemistry</option>
-            <option value="Biology">Biology</option>
-            <option value="History">History</option>
-            <option value="Geography">Geography</option>
-            <option value="Economics">Economics</option>
-            <option value="Civics">Civics</option>
-            <option value="English">English</option>
-            <option value="ICT">ICT</option>
-        </select>
-        
-        <p>Paste questions from PDF here:</p>
-        <textarea id="bulkInput" rows="10" cols="30" placeholder="Question
-Option A
-Option B
-Option C
-Option D"></textarea>
-        <br>
-        <button onclick="parseAndSaveBulk()">Upload All Questions</button>
-        <br><br>
-        <button onclick="showPage('selection')">Exit</button>
-    </div>
+        <section id="admin-panel" class="page hidden">
+            <h2>የአስተዳዳሪ ክፍል (Admin)</h2>
+            <div class="admin-grid">
+                <div class="upload-section">
+                    <h3>አዲስ ጥያቄ መጫኛ</h3>
+                    <select id="admin-subject">
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="English">English</option>
+                        <option value="Biology">Biology</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Civics">Civics</option>
+                        <option value="History">History</option>
+                        <option value="Geography">Geography</option>
+                        <option value="Economics">Economics</option>
+                    </select>
+                    <textarea id="raw-input" placeholder="ጥያቄዎቹን ከ PDF ኮፒ አድርገው እዚህ ይለጥፉ..."></textarea>
+                    <p class="hint">ፎርማት፡ ጥያቄ? [ሀ, ለ, ሐ, መ] መልስ</p>
+                    <button onclick="processAndSave()" class="btn-save">አረጋግጥና ጫን</button>
+                </div>
+                <div class="data-manage">
+                    <button onclick="clearSystem()" class="btn-danger">ሁሉንም ዳታ አጥፋ</button>
+                </div>
+            </div>
+            <button onclick="showPage('welcome-page')" class="back-link">ተመለስ</button>
+        </section>
 
-    <div id="quiz-page" class="page hidden">
-        <div id="timer" style="color: red; font-weight: bold; font-size: 20px;">Time left: 60</div>
-        <h2 id="q-title">Exam</h2>
-        <p id="q-text">Question appears here...</p>
-        <div id="options-container"></div>
-        <br><br>
-        <button id="next-button" onclick="nextQuestion()" disabled>Next</button>
-        <br><br>
-        <button onclick="showPage('subject-list')">Exit Exam</button>
-    </div>
-
-    <div id="result-page" class="page hidden">
-        <h2>Your Score</h2>
-        <p id="final-score" style="font-size: 24px; font-weight: bold;"></p>
-        <button onclick="showPage('selection')">Back to Home</button>
+        <section id="result-page" class="page hidden">
+            <div class="result-card">
+                <i class="fas fa-poll-h"></i>
+                <h2>የፈተና ውጤት</h2>
+                <h1 id="score-display">0/0</h1>
+                <button onclick="location.reload()" class="btn-primary">ጨርስ</button>
+            </div>
+        </section>
     </div>
 
     <script src="script.js"></script>
-
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/Martule-Exam-App/sw.js')
-            .then(reg => console.log('Service Worker Registered!'))
-            .catch(err => console.log('Registration Failed', err));
-        });
-      }
-    </script>
 </body>
 </html>
