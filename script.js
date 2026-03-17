@@ -1,54 +1,64 @@
+// በአድሚን የተጫኑ ጥያቄዎችን ከሚሞሪ ያመጣል
 let questions = JSON.parse(localStorage.getItem('examQuestions')) || {};
 let currentQuestions = [];
 let qIndex = 0, score = 0, timeLeft = 90 * 60, timerInterval;
 
+// ገጾችን ለመቀያየር የሚያገለግል
 function showPage(id) {
+    // ሁሉንም ገጾች ደብቅ
     document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
+    // የተመረጠውን ገጽ ብቻ አሳይ
+    const targetPage = document.getElementById(id);
+    if (targetPage) {
+        targetPage.classList.remove('hidden');
+    }
 }
 
+// አድሚን መግቢያ
 function promptAdmin() {
-    if(prompt("Password:") === "Mertule Mariyam@2026") showPage('admin-panel');
+    const pass = prompt("Password ያስገቡ:");
+    if(pass === "Mertule Mariyam@2026") {
+        showPage('admin-panel');
+    } else {
+        alert("የተሳሳተ ፓስወርድ!");
+    }
 }
 
-// ተማሪው የመረጠው ዘርፍ መሰረት ሳብጀክቶችን የሚያመጣው ክፍል
+// *** ዋናው ችግር ያለበት ቦታ - ተስተካክሏል ***
 function loadSubjects(stream) {
     const list = document.getElementById('subject-list');
     const title = document.getElementById('stream-display-title');
     
-    // የሳብጀክቱን ዝርዝር ያጸዳል
-    list.innerHTML = "";
-    
-    // የገጹን ርዕስ ይቀይራል
+    if (!list) return; // ኤለመንቱ ከሌለ ስራውን ያቆማል
+
+    list.innerHTML = ""; // የቆየ ዝርዝር ካለ ያጸዳል
     title.innerText = stream + " Science Subjects";
-    
-    // የሳብጀክቶች ዝርዝር
+
+    // በዘርፉ ያሉ ሳብጀክቶች ዝርዝር
     const subs = stream === 'Natural' 
         ? ['Mathematics', 'Physics', 'Biology', 'Chemistry', 'English', 'Civics'] 
         : ['Geography', 'History', 'Economics', 'Mathematics', 'English', 'Civics'];
-    
-    // ሳብጀክቶቹን በዲዛይን መልክ ይደረድራል
+
+    // ለእያንዳንዱ ሳብጀክት በተን ይፈጥራል
     subs.forEach(s => {
         let b = document.createElement('button');
         b.className = 'card'; 
         b.innerText = s;
+        b.style.display = "block"; // እንዲታይ ማረጋገጫ
         b.onclick = () => startExam(s);
         list.appendChild(b);
     });
-    
-    showPage('subject-page');
+
+    showPage('subject-page'); // ወደ ሳብጀክት ገጽ ይወስዳል
 }
 
 function startExam(sub) {
-    // በአድሚን በኩል ጥያቄ መጫኑን ያረጋግጣል
     if (!questions[sub] || questions[sub].length === 0) {
         return alert(sub + " ላይ እስካሁን ምንም ጥያቄ አልተጫነም! እባክዎ አድሚን ገብተው ይጫኑ።");
     }
     
     currentQuestions = questions[sub]; 
-    qIndex = 0; 
-    score = 0; 
-    timeLeft = 90 * 60; // 1 ሰዓት ከ 30 ደቂቃ
+    qIndex = 0; score = 0; timeLeft = 90 * 60;
     
     showPage('quiz-page'); 
     displayQuestion(); 
@@ -78,34 +88,20 @@ function displayQuestion() {
 
 function submitAnswer() {
     let selected = document.querySelector('.option-btn[style*="background"]');
-    if(selected && selected.dataset.ans === currentQuestions[qIndex].ans) {
-        score++;
-    }
+    if(selected && selected.dataset.ans === currentQuestions[qIndex].ans) score++;
     
     qIndex++; 
-    if(qIndex < currentQuestions.length) {
-        displayQuestion();
-    } else {
-        endExam();
-    }
+    if(qIndex < currentQuestions.length) displayQuestion(); 
+    else endExam();
 }
 
 function startTimer() {
     if(timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
         timeLeft--;
-        let h = Math.floor(timeLeft/3600);
-        let m = Math.floor((timeLeft%3600)/60);
-        let s = timeLeft%60;
-        
-        // ሰዓቱ 00:00:00 በሚል ፎርማት እንዲታይ
+        let h = Math.floor(timeLeft/3600), m = Math.floor((timeLeft%3600)/60), s = timeLeft%60;
         document.getElementById('timer').innerText = `ጊዜ፡ ${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-        
-        if(timeLeft <= 0) {
-            clearInterval(timerInterval);
-            alert("ጊዜዎ አልቋል!");
-            endExam();
-        }
+        if(timeLeft <= 0) endExam();
     }, 1000);
 }
 
@@ -118,11 +114,9 @@ function endExam() {
 function processAndSave() {
     let sub = document.getElementById('admin-subject').value;
     let raw = document.getElementById('raw-input').value;
-    
-    if(!raw.trim()) return alert("እባክዎ ጥያቄዎችን ያስገቡ!");
+    if(!raw.trim()) return alert("ጥያቄ ያስገቡ!");
     
     if(!questions[sub]) questions[sub] = [];
-    
     raw.split('\n').forEach(l => {
         if(l.includes('[') && l.includes(']')) {
             let q = l.split('[')[0].trim();
@@ -131,9 +125,8 @@ function processAndSave() {
             questions[sub].push({q, options: opts, ans});
         }
     });
-    
     localStorage.setItem('examQuestions', JSON.stringify(questions));
-    alert(sub + " ላይ ጥያቄዎች ተጭነዋል!"); 
+    alert("ተጭኗል!"); 
     document.getElementById('raw-input').value = "";
     showPage('main-page');
 }
