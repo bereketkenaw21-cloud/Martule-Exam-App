@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mertule Mariyam Exam System</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a73e8">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <div id="main-page" class="page container">
         <div class="main-icon">🎓</div>
         <h1>እንኳን ወደ መርጡለ ማሪያም 2ኛ ደረጃ ትምህርት ቤት የፈተና መለማመጃ ገፅ በደህና መጣቹህ</h1>
@@ -30,8 +30,9 @@
     </div>
 
     <div id="subject-page" class="page container hidden">
-        <h2 id="stream-display-title">Subjects</h2>
-        <div class="grid" id="subject-list"></div>
+        <h2 id="stream-display-title">ትምህርቶች</h2>
+        <div class="grid" id="subject-list">
+            </div>
         <button class="back-link" onclick="showPage('stream-page')">ተመለስ</button>
     </div>
 
@@ -41,33 +42,33 @@
             <span id="timer" style="color:red; font-weight:bold;">ጊዜ፡ 01:30:00</span>
         </div>
         <div class="question-box">
-            <p id="q-text">ጥያቄ...</p>
+            <p id="q-text">ጥያቄ እዚህ ጋር ይቀርባል...</p>
             <div id="options"></div>
         </div>
         <button id="next-btn" class="btn-primary" onclick="submitAnswer()" disabled>ቀጣይ</button>
     </div>
 
     <div id="result-page" class="page container hidden">
-        <h2>ውጤት</h2>
+        <h2>የፈተና ውጤት</h2>
         <h1 id="score-display">0 / 0</h1>
         <button class="btn-primary" onclick="location.reload()">ተመለስ</button>
     </div>
 
     <div id="admin-panel" class="page container hidden">
-        <h2>Admin</h2>
+        <h2>Admin Panel</h2>
         <select id="admin-subject" class="option-btn" style="width:100%; padding:10px; margin-bottom:10px;">
             <option value="Mathematics">Mathematics</option>
-            <option value="History">History</option>
-            <option value="Geography">Geography</option>
-            <option value="Biology">Biology</option>
             <option value="Physics">Physics</option>
+            <option value="Biology">Biology</option>
             <option value="Chemistry">Chemistry</option>
             <option value="English">English</option>
+            <option value="History">History</option>
+            <option value="Geography">Geography</option>
             <option value="Economics">Economics</option>
             <option value="Civics">Civics</option>
         </select>
-        <textarea id="raw-input" placeholder="ጥያቄ [መልስ1, መልስ2, መልስ3] ትክክለኛ_መልስ"></textarea>
-        <button class="btn-save" onclick="processAndSave()">ጫን</button>
+        <textarea id="raw-input" placeholder="ጥያቄ [ምርጫ1, ምርጫ2, ምርጫ3] መልስ"></textarea>
+        <button class="btn-save" onclick="processAndSave()">ጥያቄዎቹን ጫን</button>
         <button class="back-link" onclick="showPage('main-page')">ተመለስ</button>
     </div>
 
