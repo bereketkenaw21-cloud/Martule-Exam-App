@@ -4,78 +4,198 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mertule Mariyam Exam System</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css">
+    
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Mertule%20Mariyam%20Exam%20System%22,%22short_name%22:%22Mertule%22,%22start_url%22:%22index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#1a73e8%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/512/graduation-cap.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+    
+    <style>
+        :root { --primary: #1a73e8; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; }
+        .page { background: white; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 20px; min-height: 80vh; }
+        .hidden { display: none !important; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .card, .btn-primary { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-size: 16px; width: 100%; }
+        .btn-admin { background: #607d8b; margin-top: 10px; color: white; border: none; padding: 10px; border-radius: 5px; }
+        .option-btn { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; text-align: left; background: white; }
+        textarea { width: 100%; height: 150px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; padding: 10px; }
+        #timer { font-size: 20px; font-weight: bold; color: #d93025; }
+        .back-link { margin-top: 20px; display: inline-block; color: #666; cursor: pointer; }
+    </style>
 </head>
 <body>
 
     <div id="main-page" class="page container">
-        <div class="main-icon">🎓</div>
-        <h1>እንኳን ወደ መርጡለ ማሪያም 2ኛ ደረጃ ትምህርት ቤት የፈተና መለማመጃ ገፅ በደህና መጣቹህ</h1>
-        <p class="creator">አዘጋጅ፡ በረከት ቀናው</p>
-        <div class="action-buttons">
-            <button class="btn-primary" onclick="showPage('stream-page')">የተማሪዎች መግቢያ</button>
-            <br>
-            <button class="btn-admin" onclick="promptAdmin()">Admin</button>
-        </div>
+        <div style="font-size: 60px;">🎓</div>
+        <h1>መርጡለ ማሪያም ፈተና መለማመጃ</h1>
+        <p>አዘጋጅ፡ በረከት ቀናው</p>
+        <button class="btn-primary" onclick="showPage('stream-page')">የተማሪዎች መግቢያ</button>
+        <button class="btn-admin" onclick="promptAdmin()">Admin</button>
     </div>
 
     <div id="stream-page" class="page container hidden">
-        <h2>የጥናት ዘርፍዎን ይምረጡ</h2>
+        <h2>ዘርፍዎን ይምረጡ</h2>
         <div class="grid">
             <button class="card" onclick="loadSubjects('Natural')">Natural Science</button>
             <button class="card" onclick="loadSubjects('Social')">Social Science</button>
         </div>
-        <button class="back-link" onclick="showPage('main-page')">ተመለስ</button>
+        <div class="back-link" onclick="showPage('main-page')">← ተመለስ</div>
     </div>
 
     <div id="subject-page" class="page container hidden">
         <h2 id="stream-display-title">ትምህርቶች</h2>
-        <div class="grid" id="subject-list">
-            </div>
-        <button class="back-link" onclick="showPage('stream-page')">ተመለስ</button>
+        <div id="subject-list" class="grid"></div>
+        <div class="back-link" onclick="showPage('stream-page')">← ተመለስ</div>
     </div>
 
     <div id="quiz-page" class="page container hidden">
-        <div class="quiz-nav">
-            <span id="q-counter">ጥያቄ 1/10</span>
-            <span id="timer" style="color:red; font-weight:bold;">ጊዜ፡ 01:30:00</span>
+        <div id="timer">01:30:00</div>
+        <p id="q-counter" style="color: #666;">ጥያቄ 1</p>
+        <div style="background: #f0f4f8; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+            <p id="q-text" style="font-size: 18px; font-weight: bold;"></p>
         </div>
-        <div class="question-box">
-            <p id="q-text">ጥያቄ እዚህ ጋር ይቀርባል...</p>
-            <div id="options"></div>
-        </div>
-        <button id="next-btn" class="btn-primary" onclick="submitAnswer()" disabled>ቀጣይ</button>
+        <div id="options"></div>
+        <button id="next-btn" class="btn-primary" style="margin-top:20px;" onclick="submitAnswer()" disabled>ቀጣይ</button>
     </div>
 
     <div id="result-page" class="page container hidden">
         <h2>የፈተና ውጤት</h2>
-        <h1 id="score-display">0 / 0</h1>
-        <button class="btn-primary" onclick="location.reload()">ተመለስ</button>
+        <div style="font-size: 50px;">🏆</div>
+        <h1 id="score-display" style="font-size: 40px; color: var(--primary);">0 / 0</h1>
+        <button class="btn-primary" onclick="location.reload()">እንደገና ጀምር</button>
     </div>
 
     <div id="admin-panel" class="page container hidden">
         <h2>Admin Panel</h2>
-        <select id="admin-subject" class="option-btn" style="width:100%; padding:10px; margin-bottom:10px;">
+        <select id="admin-subject" class="card" style="background: #eee; color: #333; margin-bottom: 10px;">
+            <option value="History">History</option>
+            <option value="Geography">Geography</option>
+            <option value="Economics">Economics</option>
             <option value="Mathematics">Mathematics</option>
             <option value="Physics">Physics</option>
             <option value="Biology">Biology</option>
             <option value="Chemistry">Chemistry</option>
             <option value="English">English</option>
-            <option value="History">History</option>
-            <option value="Geography">Geography</option>
-            <option value="Economics">Economics</option>
             <option value="Civics">Civics</option>
         </select>
         <textarea id="raw-input" placeholder="ጥያቄ [ምርጫ1, ምርጫ2, ምርጫ3] መልስ"></textarea>
-        <button class="btn-save" onclick="processAndSave()">ጥያቄዎቹን ጫን</button>
-        <button class="back-link" onclick="showPage('main-page')">ተመለስ</button>
+        <button class="btn-primary" style="background: #2e7d32;" onclick="processAndSave()">ጥያቄዎቹን ጫን</button>
+        <div class="back-link" onclick="showPage('main-page')">← ተመለስ</div>
     </div>
 
-    <script src="script.js"></script>
     <script>
+        let questions = JSON.parse(localStorage.getItem('examQuestions')) || {};
+        let currentQuestions = [];
+        let qIndex = 0, score = 0, timeLeft = 90 * 60, timerInterval;
+
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function promptAdmin() {
+            if(prompt("Password:") === "Mertule Mariyam@2026") showPage('admin-panel');
+        }
+
+        function loadSubjects(stream) {
+            const list = document.getElementById('subject-list');
+            const title = document.getElementById('stream-display-title');
+            list.innerHTML = "";
+            title.innerText = stream + " Subjects";
+
+            const subs = stream === 'Natural' 
+                ? ['Mathematics', 'Physics', 'Biology', 'Chemistry', 'English', 'Civics'] 
+                : ['Geography', 'History', 'Economics', 'Mathematics', 'English', 'Civics'];
+
+            subs.forEach(s => {
+                let b = document.createElement('button');
+                b.className = 'card';
+                b.innerText = s;
+                b.onclick = () => startExam(s);
+                list.appendChild(b);
+            });
+            showPage('subject-page');
+        }
+
+        function startExam(sub) {
+            if (!questions[sub] || questions[sub].length === 0) {
+                alert(sub + " ላይ ጥያቄ አልተጫነም! አድሚን ገብተው ይጫኑ።");
+                return;
+            }
+            currentQuestions = questions[sub];
+            qIndex = 0; score = 0; timeLeft = 90 * 60;
+            showPage('quiz-page');
+            displayQuestion();
+            startTimer();
+        }
+
+        function displayQuestion() {
+            let q = currentQuestions[qIndex];
+            document.getElementById('q-counter').innerText = `ጥያቄ ${qIndex+1}/${currentQuestions.length}`;
+            document.getElementById('q-text').innerText = q.q;
+            let optDiv = document.getElementById('options');
+            optDiv.innerHTML = "";
+            
+            q.options.forEach(o => {
+                let b = document.createElement('button');
+                b.className = 'option-btn';
+                b.innerText = o;
+                b.onclick = () => {
+                    document.querySelectorAll('.option-btn').forEach(x => x.style.background='white');
+                    b.style.background='#e8f0fe';
+                    b.dataset.ans = o;
+                    document.getElementById('next-btn').disabled = false;
+                };
+                optDiv.appendChild(b);
+            });
+        }
+
+        function submitAnswer() {
+            let sel = document.querySelector('.option-btn[style*="background-color: rgb(232, 240, 254)"]');
+            if(sel && sel.dataset.ans === currentQuestions[qIndex].ans) score++;
+            qIndex++;
+            if(qIndex < currentQuestions.length) {
+                displayQuestion();
+                document.getElementById('next-btn').disabled = true;
+            } else {
+                endExam();
+            }
+        }
+
+        function startTimer() {
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                let h = Math.floor(timeLeft/3600), m = Math.floor((timeLeft%3600)/60), s = timeLeft%60;
+                document.getElementById('timer').innerText = `${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+                if(timeLeft <= 0) endExam();
+            }, 1000);
+        }
+
+        function endExam() {
+            clearInterval(timerInterval);
+            showPage('result-page');
+            document.getElementById('score-display').innerText = `${score} / ${currentQuestions.length}`;
+        }
+
+        function processAndSave() {
+            let sub = document.getElementById('admin-subject').value;
+            let raw = document.getElementById('raw-input').value;
+            if(!questions[sub]) questions[sub] = [];
+            raw.split('\n').forEach(l => {
+                if(l.includes('[') && l.includes(']')) {
+                    let q = l.split('[')[0].trim();
+                    let opts = l.split('[')[1].split(']')[0].split(',').map(x=>x.trim());
+                    let ans = l.split(']')[1].trim();
+                    questions[sub].push({q, options: opts, ans});
+                }
+            });
+            localStorage.setItem('examQuestions', JSON.stringify(questions));
+            alert(sub + " ላይ ጥያቄዎች ተጭነዋል!");
+            showPage('main-page');
+        }
+
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
         }
     </script>
 </body>
