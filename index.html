@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mertule Mariyam Exam System</title>
     
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Mertule%20Mariyam%20Exam%20System%22,%22short_name%22:%22Mertule%22,%22start_url%22:%22index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#1a73e8%22}">
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Mertule%20Mariyam%20Exam%20System%22,%22short_name%22:%22Mertule%22,%22start_url%22:%22index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#1a73e8%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/512/graduation-cap.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+    
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/graduation-cap.png">
     
     <link rel="stylesheet" href="style.css">
 </head>
@@ -17,7 +19,7 @@
         </div>
         <div class="main-icon">🎓</div>
         <h1 id="welcome-text">እንኳን ወደ መርጡለ ማሪያም 2ኛ ደረጃ ትምህርት ቤት የፈተና መለማመጃ ገፅ በደህና መጣቹህ</h1>
-        <p class="creator" id="creator-text">አዘጋጅ፡ በረከት ቀናው</p>
+        <p class="creator">አዘጋጅ፡ በረከት ቀናው</p>
         
         <div class="action-buttons">
             <button class="btn-primary" id="student-btn" onclick="showPage('stream-page')">የተማሪዎች መግቢያ</button>
@@ -30,7 +32,7 @@
         <h2 id="stream-title">የጥናት ዘርፍዎን ይምረጡ</h2>
         <div class="grid">
             <button class="card" onclick="loadSubjects('Natural')">Natural Science</button>
-            <button class="card" onclick="Social" onclick="loadSubjects('Social')">Social Science</button>
+            <button class="card" onclick="loadSubjects('Social')">Social Science</button>
         </div>
         <button class="back-link" onclick="showPage('main-page')">ተመለስ</button>
     </div>
@@ -75,7 +77,7 @@
             <option value="Economics">Economics</option>
             <option value="Civics">Civics</option>
         </select>
-        <textarea id="raw-input" placeholder="ጥያቄዎችን በዚህ ፎርማት ያስገቡ፡&#10;ጥያቄ [ምርጫ1, ምርጫ2, ምርጫ3, ምርጫ4] ትክክለኛ መልስ"></textarea>
+        <textarea id="raw-input" placeholder="ጥያቄዎችን እዚህ ይለጥፉ..."></textarea>
         <button class="btn-save" onclick="processAndSave()" style="background-color: #188038; color: white;">ጥያቄዎቹን ጫን</button>
         <button class="btn-danger" onclick="clearSystem()" style="background-color: #d93025; color: white; margin-top: 10px;">ሁሉንም ዳታ አጥፋ (Reset)</button>
         <br><br>
@@ -84,11 +86,9 @@
 
     <script src="script.js"></script>
     <script>
-      // Service Worker ለ Install እንዲሆን
+      // Service Worker - ለስልክ ጭነት
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(() => {
-          console.log('Service Worker Registered');
-        });
+        navigator.serviceWorker.register('sw.js');
       }
     </script>
 </body>
