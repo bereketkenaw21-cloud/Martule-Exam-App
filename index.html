@@ -4,32 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mertule Mariyam Exam System</title>
-    
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Mertule%20Mariyam%20Exam%20System%22,%22short_name%22:%22Mertule%22,%22start_url%22:%22index.html%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#1a73e8%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/512/graduation-cap.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
-    
-    <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/graduation-cap.png">
-    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a73e8">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="main-page" class="page container">
-        <div class="language-switcher">
-            <span onclick="setLanguage('am')">ET አማርኛ</span> | <span onclick="setLanguage('en')">US English</span>
-        </div>
         <div class="main-icon">🎓</div>
-        <h1 id="welcome-text">እንኳን ወደ መርጡለ ማሪያም 2ኛ ደረጃ ትምህርት ቤት የፈተና መለማመጃ ገፅ በደህና መጣቹህ</h1>
+        <h1>እንኳን ወደ መርጡለ ማሪያም 2ኛ ደረጃ ትምህርት ቤት የፈተና መለማመጃ ገፅ በደህና መጣቹህ</h1>
         <p class="creator">አዘጋጅ፡ በረከት ቀናው</p>
-        
         <div class="action-buttons">
-            <button class="btn-primary" id="student-btn" onclick="showPage('stream-page')">የተማሪዎች መግቢያ</button>
+            <button class="btn-primary" onclick="showPage('stream-page')">የተማሪዎች መግቢያ</button>
             <br>
-            <button class="btn-admin" id="admin-btn" onclick="promptAdmin()">Admin</button>
+            <button class="btn-admin" onclick="promptAdmin()">Admin</button>
         </div>
     </div>
 
     <div id="stream-page" class="page container hidden">
-        <h2 id="stream-title">የጥናት ዘርፍዎን ይምረጡ</h2>
+        <h2>የጥናት ዘርፍዎን ይምረጡ</h2>
         <div class="grid">
             <button class="card" onclick="loadSubjects('Natural')">Natural Science</button>
             <button class="card" onclick="loadSubjects('Social')">Social Science</button>
@@ -39,57 +31,51 @@
 
     <div id="subject-page" class="page container hidden">
         <h2 id="stream-display-title">Subjects</h2>
-        <div class="grid" id="subject-list">
-            </div>
+        <div class="grid" id="subject-list"></div>
         <button class="back-link" onclick="showPage('stream-page')">ተመለስ</button>
     </div>
 
     <div id="quiz-page" class="page container hidden">
         <div class="quiz-nav">
             <span id="q-counter">ጥያቄ 1/10</span>
-            <span id="timer" style="font-weight: bold; color: #d93025;">ጊዜ፡ 01:30:00</span>
+            <span id="timer" style="color:red; font-weight:bold;">ጊዜ፡ 01:30:00</span>
         </div>
         <div class="question-box">
-            <p id="q-text">ጥያቄ እዚህ ጋር ይቀርባል...</p>
+            <p id="q-text">ጥያቄ...</p>
             <div id="options"></div>
         </div>
         <button id="next-btn" class="btn-primary" onclick="submitAnswer()" disabled>ቀጣይ</button>
     </div>
 
     <div id="result-page" class="page container hidden">
-        <h2>የፈተና ውጤት</h2>
-        <div class="main-icon">🏆</div>
+        <h2>ውጤት</h2>
         <h1 id="score-display">0 / 0</h1>
-        <button class="btn-primary" onclick="location.reload()">ወደ መጀመሪያ ተመለስ</button>
+        <button class="btn-primary" onclick="location.reload()">ተመለስ</button>
     </div>
 
     <div id="admin-panel" class="page container hidden">
-        <h2>Admin Control Panel</h2>
-        <p>ጥያቄ የሚጭኑበትን ሳብጀክት ይምረጡ፡</p>
-        <select id="admin-subject" class="option-btn" style="margin-bottom: 15px; width: 100%; padding: 10px;">
+        <h2>Admin</h2>
+        <select id="admin-subject" class="option-btn" style="width:100%; padding:10px; margin-bottom:10px;">
             <option value="Mathematics">Mathematics</option>
-            <option value="Physics">Physics</option>
-            <option value="Biology">Biology</option>
-            <option value="Chemistry">Chemistry</option>
-            <option value="English">English</option>
             <option value="History">History</option>
             <option value="Geography">Geography</option>
+            <option value="Biology">Biology</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="English">English</option>
             <option value="Economics">Economics</option>
             <option value="Civics">Civics</option>
         </select>
-        <textarea id="raw-input" placeholder="ጥያቄዎችን እዚህ ይለጥፉ..."></textarea>
-        <button class="btn-save" onclick="processAndSave()" style="background-color: #188038; color: white;">ጥያቄዎቹን ጫን</button>
-        <button class="btn-danger" onclick="clearSystem()" style="background-color: #d93025; color: white; margin-top: 10px;">ሁሉንም ዳታ አጥፋ (Reset)</button>
-        <br><br>
+        <textarea id="raw-input" placeholder="ጥያቄ [መልስ1, መልስ2, መልስ3] ትክክለኛ_መልስ"></textarea>
+        <button class="btn-save" onclick="processAndSave()">ጫን</button>
         <button class="back-link" onclick="showPage('main-page')">ተመለስ</button>
     </div>
 
     <script src="script.js"></script>
     <script>
-      // Service Worker - ለስልክ ጭነት
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-      }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
     </script>
 </body>
 </html>
